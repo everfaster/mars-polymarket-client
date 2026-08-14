@@ -52,6 +52,8 @@
             labelStaticAddress = new Label();
             panelMain = new Panel();
             panelUser = new Panel();
+            tabControlTrade = new TabControl();
+            tabPageUserSummary = new TabPage();
             listViewUser = new ListView();
             columnName3 = new ColumnHeader();
             columnAddress3 = new ColumnHeader();
@@ -62,6 +64,15 @@
             columnWinAmount = new ColumnHeader();
             columnLossAmount = new ColumnHeader();
             columnTotalProfit2 = new ColumnHeader();
+            tabPageSumaryDetails = new TabPage();
+            listViewSummaryDetails = new ListView();
+            columnSlug = new ColumnHeader();
+            columnAddress4 = new ColumnHeader();
+            columnUpProfit2 = new ColumnHeader();
+            columnDownProfit2 = new ColumnHeader();
+            columnTotalProfit3 = new ColumnHeader();
+            columnTradeCount2 = new ColumnHeader();
+            columnTradeAmount2 = new ColumnHeader();
             panelControl = new Panel();
             panelTrades = new Panel();
             listViewTrade = new ListView();
@@ -83,6 +94,9 @@
             panelFilter.SuspendLayout();
             panelMain.SuspendLayout();
             panelUser.SuspendLayout();
+            tabControlTrade.SuspendLayout();
+            tabPageUserSummary.SuspendLayout();
+            tabPageSumaryDetails.SuspendLayout();
             panelTrades.SuspendLayout();
             panelEventInfo.SuspendLayout();
             SuspendLayout();
@@ -274,23 +288,45 @@
             // 
             // panelUser
             // 
-            panelUser.Controls.Add(listViewUser);
+            panelUser.Controls.Add(tabControlTrade);
             panelUser.Controls.Add(panelControl);
             panelUser.Dock = DockStyle.Fill;
-            panelUser.Location = new Point(0, 550);
+            panelUser.Location = new Point(0, 500);
             panelUser.Name = "panelUser";
-            panelUser.Size = new Size(447, 350);
+            panelUser.Size = new Size(447, 400);
             panelUser.TabIndex = 3;
+            // 
+            // tabControlTrade
+            // 
+            tabControlTrade.Controls.Add(tabPageUserSummary);
+            tabControlTrade.Controls.Add(tabPageSumaryDetails);
+            tabControlTrade.Dock = DockStyle.Fill;
+            tabControlTrade.Location = new Point(0, 20);
+            tabControlTrade.Name = "tabControlTrade";
+            tabControlTrade.SelectedIndex = 0;
+            tabControlTrade.Size = new Size(447, 380);
+            tabControlTrade.TabIndex = 10;
+            // 
+            // tabPageUserSummary
+            // 
+            tabPageUserSummary.Controls.Add(listViewUser);
+            tabPageUserSummary.Location = new Point(4, 24);
+            tabPageUserSummary.Name = "tabPageUserSummary";
+            tabPageUserSummary.Padding = new Padding(3);
+            tabPageUserSummary.Size = new Size(439, 352);
+            tabPageUserSummary.TabIndex = 0;
+            tabPageUserSummary.Text = "User Summary";
+            tabPageUserSummary.UseVisualStyleBackColor = true;
             // 
             // listViewUser
             // 
             listViewUser.Columns.AddRange(new ColumnHeader[] { columnName3, columnAddress3, columnEventCount, columnWinCount, columnLossCount, columnWinRate, columnWinAmount, columnLossAmount, columnTotalProfit2 });
             listViewUser.Dock = DockStyle.Fill;
             listViewUser.FullRowSelect = true;
-            listViewUser.Location = new Point(0, 50);
+            listViewUser.Location = new Point(3, 3);
             listViewUser.Name = "listViewUser";
-            listViewUser.Size = new Size(447, 300);
-            listViewUser.TabIndex = 8;
+            listViewUser.Size = new Size(433, 346);
+            listViewUser.TabIndex = 9;
             listViewUser.UseCompatibleStateImageBehavior = false;
             listViewUser.View = View.Details;
             listViewUser.ColumnClick += listViewUser_ColumnClick;
@@ -348,12 +384,77 @@
             columnTotalProfit2.TextAlign = HorizontalAlignment.Right;
             columnTotalProfit2.Width = 80;
             // 
+            // tabPageSumaryDetails
+            // 
+            tabPageSumaryDetails.Controls.Add(listViewSummaryDetails);
+            tabPageSumaryDetails.Location = new Point(4, 24);
+            tabPageSumaryDetails.Name = "tabPageSumaryDetails";
+            tabPageSumaryDetails.Padding = new Padding(3);
+            tabPageSumaryDetails.Size = new Size(439, 352);
+            tabPageSumaryDetails.TabIndex = 1;
+            tabPageSumaryDetails.Text = "Summary Details";
+            tabPageSumaryDetails.UseVisualStyleBackColor = true;
+            // 
+            // listViewSummaryDetails
+            // 
+            listViewSummaryDetails.Columns.AddRange(new ColumnHeader[] { columnSlug, columnAddress4, columnUpProfit2, columnDownProfit2, columnTotalProfit3, columnTradeCount2, columnTradeAmount2 });
+            listViewSummaryDetails.Dock = DockStyle.Fill;
+            listViewSummaryDetails.FullRowSelect = true;
+            listViewSummaryDetails.Location = new Point(3, 3);
+            listViewSummaryDetails.Name = "listViewSummaryDetails";
+            listViewSummaryDetails.Size = new Size(433, 346);
+            listViewSummaryDetails.TabIndex = 10;
+            listViewSummaryDetails.UseCompatibleStateImageBehavior = false;
+            listViewSummaryDetails.View = View.Details;
+            listViewSummaryDetails.ColumnClick += listViewSummaryDetails_ColumnClick;
+            listViewSummaryDetails.DoubleClick += listViewSummaryDetails_DoubleClick;
+            // 
+            // columnSlug
+            // 
+            columnSlug.Text = "Slug";
+            columnSlug.Width = 180;
+            // 
+            // columnAddress4
+            // 
+            columnAddress4.Text = "Name";
+            columnAddress4.Width = 100;
+            // 
+            // columnUpProfit2
+            // 
+            columnUpProfit2.Text = "Up Profit";
+            columnUpProfit2.TextAlign = HorizontalAlignment.Right;
+            columnUpProfit2.Width = 80;
+            // 
+            // columnDownProfit2
+            // 
+            columnDownProfit2.Text = "Down Profit";
+            columnDownProfit2.TextAlign = HorizontalAlignment.Right;
+            columnDownProfit2.Width = 80;
+            // 
+            // columnTotalProfit3
+            // 
+            columnTotalProfit3.Text = "Total Profit";
+            columnTotalProfit3.TextAlign = HorizontalAlignment.Right;
+            columnTotalProfit3.Width = 80;
+            // 
+            // columnTradeCount2
+            // 
+            columnTradeCount2.Text = "Trade Count";
+            columnTradeCount2.TextAlign = HorizontalAlignment.Right;
+            columnTradeCount2.Width = 80;
+            // 
+            // columnTradeAmount2
+            // 
+            columnTradeAmount2.Text = "Trade Amount";
+            columnTradeAmount2.TextAlign = HorizontalAlignment.Right;
+            columnTradeAmount2.Width = 90;
+            // 
             // panelControl
             // 
             panelControl.Dock = DockStyle.Top;
             panelControl.Location = new Point(0, 0);
             panelControl.Name = "panelControl";
-            panelControl.Size = new Size(447, 50);
+            panelControl.Size = new Size(447, 20);
             panelControl.TabIndex = 7;
             // 
             // panelTrades
@@ -363,7 +464,7 @@
             panelTrades.Dock = DockStyle.Top;
             panelTrades.Location = new Point(0, 0);
             panelTrades.Name = "panelTrades";
-            panelTrades.Size = new Size(447, 550);
+            panelTrades.Size = new Size(447, 500);
             panelTrades.TabIndex = 1;
             // 
             // listViewTrade
@@ -373,7 +474,7 @@
             listViewTrade.FullRowSelect = true;
             listViewTrade.Location = new Point(0, 80);
             listViewTrade.Name = "listViewTrade";
-            listViewTrade.Size = new Size(447, 470);
+            listViewTrade.Size = new Size(447, 420);
             listViewTrade.TabIndex = 4;
             listViewTrade.UseCompatibleStateImageBehavior = false;
             listViewTrade.View = View.Details;
@@ -488,6 +589,9 @@
             panelFilter.PerformLayout();
             panelMain.ResumeLayout(false);
             panelUser.ResumeLayout(false);
+            tabControlTrade.ResumeLayout(false);
+            tabPageUserSummary.ResumeLayout(false);
+            tabPageSumaryDetails.ResumeLayout(false);
             panelTrades.ResumeLayout(false);
             panelEventInfo.ResumeLayout(false);
             ResumeLayout(false);
@@ -535,6 +639,10 @@
         private ComboBox comboBoxUpDown;
         private Label labelStaticUpDown;
         private ComboBox comboBoxSide;
+        private Panel panelControl;
+        private TabControl tabControlTrade;
+        private TabPage tabPageUserSummary;
+        private TabPage tabPageSumaryDetails;
         private ListView listViewUser;
         private ColumnHeader columnName3;
         private ColumnHeader columnAddress3;
@@ -545,6 +653,13 @@
         private ColumnHeader columnWinAmount;
         private ColumnHeader columnLossAmount;
         private ColumnHeader columnTotalProfit2;
-        private Panel panelControl;
+        private ListView listViewSummaryDetails;
+        private ColumnHeader columnSlug;
+        private ColumnHeader columnAddress4;
+        private ColumnHeader columnUpProfit2;
+        private ColumnHeader columnDownProfit2;
+        private ColumnHeader columnTotalProfit3;
+        private ColumnHeader columnTradeCount2;
+        private ColumnHeader columnTradeAmount2;
     }
 }

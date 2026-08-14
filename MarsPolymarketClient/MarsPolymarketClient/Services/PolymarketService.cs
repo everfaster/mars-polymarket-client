@@ -6,6 +6,8 @@ using MarsPolymarketClient.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SocketIOClient;
+using System.Net;
+using System.Text.Json.Nodes;
 
 namespace MarsPolymarketClient.Services
 {
@@ -14,11 +16,10 @@ namespace MarsPolymarketClient.Services
         static string DATABASE = "database";
         static string DATABASE_FOLDER_PATH = "";
 
+        static string GAMMA_API_URL = "https://gamma-api.polymarket.com";
         static string LOGIN_URL = $"{AppSettings.ServerAddress}/api/session/login";
         static string START_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/start";
         static string STOP_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/stop";
-        static string MARKET_URL = $"{AppSettings.ServerAddress}/api/analysis/market";
-        static string ALL_TRADES_URL = $"{AppSettings.ServerAddress}/api/analysis/allTrades";
 
         public static bool ServerConnected = false;
 
@@ -123,6 +124,17 @@ namespace MarsPolymarketClient.Services
             return true;
         }
 
+        public static bool IsDataExists(string slug)
+        {
+            string filePath = $"{DATABASE_FOLDER_PATH}//markets//{slug}.json";
+            return File.Exists(filePath);
+        }
+
+        public static List<string> ParseJsonArrayString(string array)
+        {
+            return JArray.Parse(array).ToObject<List<string>>() ?? new List<string>();
+        }
+
         public static async Task<Market> GetMarketBySlug(string slug)
         {
             // load if already exits in database folder
@@ -130,29 +142,45 @@ namespace MarsPolymarketClient.Services
             if (File.Exists(filePath))
                 return JsonConvert.DeserializeObject<Market>(File.ReadAllText(filePath)) ?? new Market();
 
-            HttpClient client = new HttpClient();
-
-            JObject parameter = new JObject();
-            parameter["slug"] = slug;
-
-            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
-            var content = new FormUrlEncodedContent(new[] {
-                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
-            });
-            var response = await client.PostAsync(MARKET_URL, content);
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-
-            if (jsonString.StartsWith("{\"error\""))
+            try
             {
-                var jObject = JObject.Parse(jsonString);
-                throw new Exception(jObject["error"]?.ToString());
+                HttpClient client = new HttpClient();
+                var url = $"{GAMMA_API_URL}/markets/slug/{slug}";
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+
+                if (jsonString.StartsWith("{\"error\""))
+                {
+                    var jObject = JObject.Parse(jsonString);
+                    throw new Exception(jObject["error"]?.ToString());
+                }
+
+                JObject data = JObject.Parse(jsonString);
+                var market = new Market
+                {
+                    Id = data["id"]?.ToString() ?? "",
+                    Question = data["question"]?.ToString() ?? "",
+                    ConditionId = data["conditionId"]?.ToString() ?? "",
+                    Slug = data["slug"]?.ToString() ?? "",
+                    StartTime = ((DateTime)data["eventStartTime"]).ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
+                    EndTime = ((DateTime)data["endDate"]).ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
+                    Outcomes = ParseJsonArrayString(data["outcomes"]?.ToString() ?? ""),
+                    OutcomePrices = ParseJsonArrayString(data["outcomePrices"]?.ToString() ?? ""),
+                    ClobTokenIds = ParseJsonArrayString(data["clobTokenIds"]?.ToString() ?? ""),
+                    OrderPriceMinTickSize = data["orderPriceMinTickSize"]?.Value<decimal>() ?? 0,
+                    OrderMinSize = data["orderMinSize"]?.Value<decimal>() ?? 0
+                };
+
+                // save to database file
+                File.WriteAllText(filePath, JObject.FromObject(market).ToString());
+
+                return market;
             }
-
-            // save to database file
-            File.WriteAllText(filePath, jsonString);
-
-            return JsonConvert.DeserializeObject<Market>(jsonString) ?? new Market();
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public static async Task<List<Trade>> GetAllTrades(string conditionId)
@@ -162,29 +190,88 @@ namespace MarsPolymarketClient.Services
             if (File.Exists(filePath))
                 return JsonConvert.DeserializeObject<List<Trade>>(File.ReadAllText(filePath)) ?? new List<Trade>();
 
-            HttpClient client = new HttpClient();
+            //HttpClient client = new HttpClient();
 
-            JObject parameter = new JObject();
-            parameter["conditionId"] = conditionId;
+            //JObject parameter = new JObject();
+            //parameter["conditionId"] = conditionId;
 
-            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
-            var content = new FormUrlEncodedContent(new[] {
-                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
-            });
-            var response = await client.PostAsync(ALL_TRADES_URL, content);
+            //var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            //var content = new FormUrlEncodedContent(new[] {
+            //    new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            //});
+            //var response = await client.PostAsync(ALL_TRADES_URL, content);
 
-            var jsonString = await response.Content.ReadAsStringAsync();
+            //var jsonString = await response.Content.ReadAsStringAsync();
 
-            if (jsonString.StartsWith("{\"error\""))
+            //if (jsonString.StartsWith("{\"error\""))
+            //{
+            //    var jObject = JObject.Parse(jsonString);
+            //    throw new Exception(jObject["error"]?.ToString());
+            //}
+
+            // save to database file
+            //File.WriteAllText(filePath, jsonString);
+
+            //return JsonConvert.DeserializeObject<List<Trade>>(jsonString) ?? new List<Trade>();
+
+            var all = new JArray();
+            const int limit = 500, maxTrades = 20000;
+            int offset = 0;
+
+            try
             {
-                var jObject = JObject.Parse(jsonString);
-                throw new Exception(jObject["error"]?.ToString());
+                HttpClient client = new HttpClient();
+                while (all.Count < maxTrades)
+                {
+                    string url =
+                        $"https://data-api.polymarket.com/trades" +
+                        $"?takerOnly=false" +
+                        $"&user=" +
+                        $"&market={Uri.EscapeDataString(conditionId)}" +
+                        $"&limit={limit}" +
+                        $"&offset={offset}";
+
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    string json = await response.Content.ReadAsStringAsync();
+                    if (json.StartsWith("{\"error\""))
+                    {
+                        var jObject = JObject.Parse(json);
+                        throw new Exception(jObject["error"]?.ToString());
+                    }
+
+                    JArray? batch = JArray.Parse(json);
+                    if (batch.Count == 0)
+                        break;
+
+                    foreach (JObject trade in batch.OfType<JObject>())
+                    {
+                        trade.Remove("icon");
+                        trade.Remove("eventSlug");
+                        trade.Remove("pseudonym");
+                        trade.Remove("bio");
+                        trade.Remove("profileImage");
+                        trade.Remove("profileImageOptimized");
+
+                        all.Add(trade);
+
+                        if (all.Count >= maxTrades)
+                            break;
+                    }
+
+                    offset += batch.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                //throw new Exception(ex.Message);
             }
 
             // save to database file
-            File.WriteAllText(filePath, jsonString);
+            File.WriteAllText(filePath, all.ToString());
 
-            return JsonConvert.DeserializeObject<List<Trade>>(jsonString) ?? new List<Trade>();
+            return all.ToObject<List<Trade>>() ?? new List<Trade>();
         }
     }
 }

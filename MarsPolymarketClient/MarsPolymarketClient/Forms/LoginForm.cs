@@ -39,6 +39,11 @@ namespace MarsPolymarketClient.Forms
 
         private void buttonLogin_Click(object sender, EventArgs e)
         {
+            // test code
+            DialogResult = DialogResult.OK;
+            Dispose();
+            //
+
             string password = textBoxPassword.Text;
             if (password == "")
             {

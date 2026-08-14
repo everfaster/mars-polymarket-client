@@ -44,6 +44,7 @@ namespace MarsPolymarketClient.Models
     {
         public string Name { get; set; } = string.Empty;
         public string ProxyWallet { get; set; } = string.Empty;
+        public List<string> Slugs { get; set; } = new List<string>();
         public int EventCount { get; set; } = 0;
         public int WinCount { get; set; } = 0;
         public int LoseCount { get; set; } = 0;

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using MarsPolymarketClient.Components;
+using MarsPolymarketClient.Forms;
 using MarsPolymarketClient.Global;
 using MarsPolymarketClient.Models;
 
@@ -20,8 +21,11 @@ namespace MarsPolymarketClient.Containers.Main
         Dictionary<int, bool> _sorts1 = new Dictionary<int, bool>();
         Dictionary<int, bool> _sorts2 = new Dictionary<int, bool>();
         Dictionary<int, bool> _sorts3 = new Dictionary<int, bool>();
+        Dictionary<int, bool> _sorts4 = new Dictionary<int, bool>();
+
+        Dictionary<string, UserSummary> _userSummaries = new Dictionary<string, UserSummary>();
         List<string> _slugs = new List<string>();
-        string _slug = "";
+        string _slug = "", _selectedAddress = "";
 
         public AnalysisPane()
         {
@@ -172,6 +176,12 @@ namespace MarsPolymarketClient.Containers.Main
             listViewUser.ListViewItemSorter = new ListViewItemComparer(e.Column, _sorts3[e.Column]);
         }
 
+        private void listViewSummaryDetails_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            _sorts4[e.Column] = _sorts4.ContainsKey(e.Column) ? !_sorts4[e.Column] : true;
+            listViewSummaryDetails.ListViewItemSorter = new ListViewItemComparer(e.Column, _sorts4[e.Column]);
+        }
+
         private void listViewTrade_DoubleClick(object sender, EventArgs e)
         {
             if (listViewTrade.SelectedItems.Count == 0)
@@ -188,6 +198,20 @@ namespace MarsPolymarketClient.Containers.Main
 
             var address = listViewUser.SelectedItems[0].SubItems[1].Text;
             textBoxAddress.Text = address;
+            _selectedAddress = address;
+
+            tabControlTrade.SelectedIndex = 1;
+
+            UpdateSummaryDetails(_selectedAddress);
+        }
+
+        private void listViewSummaryDetails_DoubleClick(object sender, EventArgs e)
+        {
+            if (listViewSummaryDetails.SelectedItems.Count == 0)
+                return;
+
+            var slug = listViewSummaryDetails.SelectedItems[0].SubItems[0].Text;
+            MainForm.GetInstance().GetEventsPanel().UpdateEvent(slug);
         }
 
         private void buttonFilter_Click(object sender, EventArgs e)
@@ -213,8 +237,7 @@ namespace MarsPolymarketClient.Containers.Main
         public void BulkAnalyze(List<string> slugs)
         {
             _slugs = slugs;
-
-            var userSummaries = new Dictionary<string, UserSummary>();
+            _userSummaries = new Dictionary<string, UserSummary>();
 
             foreach (var slug in _slugs)
             {
@@ -225,16 +248,16 @@ namespace MarsPolymarketClient.Containers.Main
 
                 foreach (var summary in tradeSummaries)
                 {
-                    if (!userSummaries.ContainsKey(summary.Key))
+                    if (!_userSummaries.ContainsKey(summary.Key))
                     {
-                        userSummaries[summary.Key] = new UserSummary()
+                        _userSummaries[summary.Key] = new UserSummary()
                         {
                             Name = summary.Value.Name,
                             ProxyWallet = summary.Value.ProxyWallet
                         };
                     }
 
-                    var userSummary = userSummaries[summary.Key];
+                    var userSummary = _userSummaries[summary.Key];
 
                     userSummary.EventCount++;
                     if (summary.Value.TotalProfit > 0)
@@ -247,12 +270,14 @@ namespace MarsPolymarketClient.Containers.Main
                         userSummary.LoseCount++;
                         userSummary.LoseAmount += summary.Value.TotalProfit;
                     }
+
                     userSummary.TotalProfit += summary.Value.TotalProfit;
+                    userSummary.Slugs.Add(slug);
                 }
             }
 
             listViewUser.Items.Clear();
-            foreach (var userSummary in userSummaries)
+            foreach (var userSummary in _userSummaries)
             {
                 var summary = userSummary.Value;
                 var winRate = summary.WinCount * 100m / (summary.WinCount + summary.LoseCount);
@@ -267,6 +292,31 @@ namespace MarsPolymarketClient.Containers.Main
                     summary.WinAmount.ToString("0.0"),
                     summary.LoseAmount.ToString("0.0"),
                     summary.TotalProfit.ToString("0.0"),
+                }));
+            }
+        }
+
+        private void UpdateSummaryDetails(string address)
+        {
+            if (!_userSummaries.ContainsKey(address))
+                return;
+
+            listViewSummaryDetails.Items.Clear();
+
+            var slugs = _userSummaries[address].Slugs;
+            foreach (var slug in slugs)
+            {
+                var summary = DataCenter.Events[slug].TradeSummaries[address];
+
+                var item = listViewSummaryDetails.Items.Add(new ListViewItem(new string[]
+                {
+                    slug,
+                    summary.Name,
+                    summary.UpProfit.ToString("0.0"),
+                    summary.DownProfit.ToString("0.0"),
+                    summary.TotalProfit.ToString("0.0"),
+                    summary.TradeCount.ToString(),
+                    summary.TotalAmount.ToString("0.0"),
                 }));
             }
         }

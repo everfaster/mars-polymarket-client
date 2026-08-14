@@ -1,10 +1,4 @@
-﻿
-using MarsPolymarketClient.Forms;
-using MarsPolymarketClient.Global;
-using MarsPolymarketClient.Helpers;
-using MarsPolymarketClient.Models;
-using MarsPolymarketClient.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,10 +9,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using MarsPolymarketClient.Forms;
+using MarsPolymarketClient.Global;
+using MarsPolymarketClient.Helpers;
+using MarsPolymarketClient.Models;
+using MarsPolymarketClient.Services;
+
 namespace MarsPolymarketClient.Containers.Events
 {
     public partial class EventsPanel : UserControl
     {
+        string _prefix = "";
+        int _offset = 0;
+
         public EventsPanel()
         {
             InitializeComponent();
@@ -53,8 +56,8 @@ namespace MarsPolymarketClient.Containers.Events
         {
             listViewSlug.Items.Clear();
 
-            long now = Utils.GetCurrentSlugTimeStamp(prefix);
             int timeframe = Utils.GetTimeframeSeconds(prefix);
+            long now = Utils.GetCurrentSlugTimeStamp(prefix) - timeframe * _offset;
 
             int count = int.Parse(textBoxCount.Text);
 
@@ -72,9 +75,11 @@ namespace MarsPolymarketClient.Containers.Events
                     DataCenter.Events[slug].Analyzed ? "Analyzed" : ""
                 }));
             }
+
+            _prefix = prefix;
         }
 
-        private void UpdateEvent(string slug, bool update = true)
+        public void UpdateEvent(string slug, bool update = true)
         {
             var analysisPane = MainForm.GetInstance().GetAnalysisPane();
 
@@ -127,6 +132,8 @@ namespace MarsPolymarketClient.Containers.Events
                     {
                         string message = $"HandleEventRequest Error. {e.Message}";
                         MainForm.GetInstance().ShowAlert(message);
+
+                        UpdateSlugListStatus(slug, "Failed");
                     }));
                 }
             });
@@ -247,10 +254,19 @@ namespace MarsPolymarketClient.Containers.Events
 
         private void buttonPrev_Click(object sender, EventArgs e)
         {
+            _offset += int.Parse(textBoxCount.Text);
+
+            UpdateSlugList(_prefix);
         }
 
         private void buttonNext_Click(object sender, EventArgs e)
         {
+            if (_offset == 0)
+                return;
+
+            _offset = Math.Min(0, _offset - int.Parse(textBoxCount.Text));
+
+            UpdateSlugList(_prefix);
         }
 
         private void buttonBulkAnalyze_Click(object sender, EventArgs e)
@@ -275,10 +291,20 @@ namespace MarsPolymarketClient.Containers.Events
             {
                 if (item.SubItems[1].Text == "")
                 {
-                    UpdateEvent(item.SubItems[0].Text, false);
-                    return;
+                    var slug = item.SubItems[0].Text;
+                    bool exists = PolymarketService.IsDataExists(slug);
+
+                    UpdateEvent(slug, false);
+
+                    if (!exists)
+                        return;
                 }
             }
+        }
+
+        private void checkBoxAutoAnalyze_CheckedChanged(object sender, EventArgs e)
+        {
+            timerEvent.Enabled = checkBoxAutoAnalyze.Checked;
         }
     }
 }

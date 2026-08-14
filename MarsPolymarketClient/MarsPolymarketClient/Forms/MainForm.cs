@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MarsPolymarketClient.Containers.Events;
 using MarsPolymarketClient.Containers.Main;
 using MarsPolymarketClient.Global;
 using MarsPolymarketClient.Helpers;
@@ -45,6 +46,11 @@ namespace MarsPolymarketClient.Forms
         public TabControl GetTabControl()
         {
             return tabControlMain;
+        }
+
+        public EventsPanel GetEventsPanel()
+        {
+            return eventsPanel;
         }
 
         public AnalysisPane GetAnalysisPane()

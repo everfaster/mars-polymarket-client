@@ -45,6 +45,7 @@
             textBoxSlug = new TextBox();
             labelSlug = new Label();
             timerEvent = new System.Windows.Forms.Timer(components);
+            checkBoxAutoAnalyze = new CheckBox();
             panelTop.SuspendLayout();
             panelBottom.SuspendLayout();
             panelSlug.SuspendLayout();
@@ -84,9 +85,9 @@
             listViewSlug.Columns.AddRange(new ColumnHeader[] { columnSlug, columnStatus });
             listViewSlug.Dock = DockStyle.Fill;
             listViewSlug.FullRowSelect = true;
-            listViewSlug.Location = new Point(0, 80);
+            listViewSlug.Location = new Point(0, 105);
             listViewSlug.Name = "listViewSlug";
-            listViewSlug.Size = new Size(260, 114);
+            listViewSlug.Size = new Size(260, 89);
             listViewSlug.TabIndex = 5;
             listViewSlug.UseCompatibleStateImageBehavior = false;
             listViewSlug.View = View.Details;
@@ -104,6 +105,7 @@
             // 
             // panelSlug
             // 
+            panelSlug.Controls.Add(checkBoxAutoAnalyze);
             panelSlug.Controls.Add(buttonBulkAnalyze);
             panelSlug.Controls.Add(buttonNext);
             panelSlug.Controls.Add(buttonPrev);
@@ -115,12 +117,12 @@
             panelSlug.Dock = DockStyle.Top;
             panelSlug.Location = new Point(0, 0);
             panelSlug.Name = "panelSlug";
-            panelSlug.Size = new Size(260, 80);
+            panelSlug.Size = new Size(260, 105);
             panelSlug.TabIndex = 1;
             // 
             // buttonBulkAnalyze
             // 
-            buttonBulkAnalyze.Location = new Point(182, 10);
+            buttonBulkAnalyze.Location = new Point(92, 67);
             buttonBulkAnalyze.Name = "buttonBulkAnalyze";
             buttonBulkAnalyze.Size = new Size(75, 30);
             buttonBulkAnalyze.TabIndex = 10;
@@ -130,27 +132,27 @@
             // 
             // buttonNext
             // 
-            buttonNext.Location = new Point(141, 11);
+            buttonNext.Location = new Point(132, 4);
             buttonNext.Name = "buttonNext";
-            buttonNext.Size = new Size(35, 30);
+            buttonNext.Size = new Size(30, 30);
             buttonNext.TabIndex = 9;
-            buttonNext.Text = ">>";
+            buttonNext.Text = ">";
             buttonNext.UseVisualStyleBackColor = true;
             buttonNext.Click += buttonNext_Click;
             // 
             // buttonPrev
             // 
-            buttonPrev.Location = new Point(102, 11);
+            buttonPrev.Location = new Point(100, 4);
             buttonPrev.Name = "buttonPrev";
-            buttonPrev.Size = new Size(35, 30);
+            buttonPrev.Size = new Size(30, 30);
             buttonPrev.TabIndex = 8;
-            buttonPrev.Text = "<<";
+            buttonPrev.Text = "<";
             buttonPrev.UseVisualStyleBackColor = true;
             buttonPrev.Click += buttonPrev_Click;
             // 
             // textBoxCount
             // 
-            textBoxCount.Location = new Point(46, 15);
+            textBoxCount.Location = new Point(46, 8);
             textBoxCount.Name = "textBoxCount";
             textBoxCount.Size = new Size(50, 23);
             textBoxCount.TabIndex = 7;
@@ -160,7 +162,7 @@
             // labelStaticCount
             // 
             labelStaticCount.AutoSize = true;
-            labelStaticCount.Location = new Point(4, 18);
+            labelStaticCount.Location = new Point(4, 11);
             labelStaticCount.Name = "labelStaticCount";
             labelStaticCount.Size = new Size(43, 15);
             labelStaticCount.TabIndex = 6;
@@ -168,7 +170,7 @@
             // 
             // buttonAnalyze
             // 
-            buttonAnalyze.Location = new Point(182, 44);
+            buttonAnalyze.Location = new Point(173, 67);
             buttonAnalyze.Name = "buttonAnalyze";
             buttonAnalyze.Size = new Size(75, 30);
             buttonAnalyze.TabIndex = 5;
@@ -178,15 +180,15 @@
             // 
             // textBoxSlug
             // 
-            textBoxSlug.Location = new Point(46, 47);
+            textBoxSlug.Location = new Point(46, 38);
             textBoxSlug.Name = "textBoxSlug";
-            textBoxSlug.Size = new Size(130, 23);
+            textBoxSlug.Size = new Size(202, 23);
             textBoxSlug.TabIndex = 4;
             // 
             // labelSlug
             // 
             labelSlug.AutoSize = true;
-            labelSlug.Location = new Point(4, 50);
+            labelSlug.Location = new Point(4, 41);
             labelSlug.Name = "labelSlug";
             labelSlug.Size = new Size(33, 15);
             labelSlug.TabIndex = 3;
@@ -197,6 +199,19 @@
             timerEvent.Enabled = true;
             timerEvent.Interval = 10000;
             timerEvent.Tick += timerEvent_Tick;
+            // 
+            // checkBoxAutoAnalyze
+            // 
+            checkBoxAutoAnalyze.AutoSize = true;
+            checkBoxAutoAnalyze.Checked = true;
+            checkBoxAutoAnalyze.CheckState = CheckState.Checked;
+            checkBoxAutoAnalyze.Location = new Point(168, 10);
+            checkBoxAutoAnalyze.Name = "checkBoxAutoAnalyze";
+            checkBoxAutoAnalyze.Size = new Size(82, 19);
+            checkBoxAutoAnalyze.TabIndex = 11;
+            checkBoxAutoAnalyze.Text = "Auto Anal.";
+            checkBoxAutoAnalyze.UseVisualStyleBackColor = true;
+            checkBoxAutoAnalyze.CheckedChanged += checkBoxAutoAnalyze_CheckedChanged;
             // 
             // EventsPanel
             // 
@@ -232,5 +247,6 @@
         private Button buttonNext;
         private Button buttonPrev;
         private System.Windows.Forms.Timer timerEvent;
+        private CheckBox checkBoxAutoAnalyze;
     }
 }
