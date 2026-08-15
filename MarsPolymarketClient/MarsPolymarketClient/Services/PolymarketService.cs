@@ -14,7 +14,7 @@ namespace MarsPolymarketClient.Services
     public class PolymarketService
     {
         static string DATABASE = "database";
-        static string DATABASE_FOLDER_PATH = "";
+        static string DATABASE_FOLDER_PATH = Path.Combine(AppContext.BaseDirectory, DATABASE);
 
         static string GAMMA_API_URL = "https://gamma-api.polymarket.com";
         static string LOGIN_URL = $"{AppSettings.ServerAddress}/api/session/login";
@@ -39,7 +39,6 @@ namespace MarsPolymarketClient.Services
 
             socketClient.ConnectAsync();
 
-            DATABASE_FOLDER_PATH = Path.Combine(AppContext.BaseDirectory, DATABASE);
             Directory.CreateDirectory(DATABASE_FOLDER_PATH);
             Directory.CreateDirectory($"{DATABASE_FOLDER_PATH}//markets");
             Directory.CreateDirectory($"{DATABASE_FOLDER_PATH}//trades");
@@ -163,8 +162,8 @@ namespace MarsPolymarketClient.Services
                     Question = data["question"]?.ToString() ?? "",
                     ConditionId = data["conditionId"]?.ToString() ?? "",
                     Slug = data["slug"]?.ToString() ?? "",
-                    StartTime = ((DateTime)data["eventStartTime"]).ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
-                    EndTime = ((DateTime)data["endDate"]).ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
+                    StartTime = data["eventStartTime"]?.Value<DateTime>().ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
+                    EndTime = data["endDate"]?.Value<DateTime>().ToString("yyyy-MM-ddTHH:mm:ssZ") ?? "",
                     Outcomes = ParseJsonArrayString(data["outcomes"]?.ToString() ?? ""),
                     OutcomePrices = ParseJsonArrayString(data["outcomePrices"]?.ToString() ?? ""),
                     ClobTokenIds = ParseJsonArrayString(data["clobTokenIds"]?.ToString() ?? ""),
@@ -173,7 +172,10 @@ namespace MarsPolymarketClient.Services
                 };
 
                 // save to database file
-                File.WriteAllText(filePath, JObject.FromObject(market).ToString());
+                if (market.OutcomePrices[0] == "1" || market.OutcomePrices[1] == "1")
+                {
+                    File.WriteAllText(filePath, JObject.FromObject(market).ToString());
+                }
 
                 return market;
             }
@@ -263,7 +265,7 @@ namespace MarsPolymarketClient.Services
                     offset += batch.Count;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //throw new Exception(ex.Message);
             }

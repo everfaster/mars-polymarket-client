@@ -36,6 +36,7 @@
             columnSlug = new ColumnHeader();
             columnStatus = new ColumnHeader();
             panelSlug = new Panel();
+            checkBoxAutoAnalyze = new CheckBox();
             buttonBulkAnalyze = new Button();
             buttonNext = new Button();
             buttonPrev = new Button();
@@ -45,7 +46,6 @@
             textBoxSlug = new TextBox();
             labelSlug = new Label();
             timerEvent = new System.Windows.Forms.Timer(components);
-            checkBoxAutoAnalyze = new CheckBox();
             panelTop.SuspendLayout();
             panelBottom.SuspendLayout();
             panelSlug.SuspendLayout();
@@ -119,6 +119,19 @@
             panelSlug.Name = "panelSlug";
             panelSlug.Size = new Size(260, 105);
             panelSlug.TabIndex = 1;
+            // 
+            // checkBoxAutoAnalyze
+            // 
+            checkBoxAutoAnalyze.AutoSize = true;
+            checkBoxAutoAnalyze.Checked = true;
+            checkBoxAutoAnalyze.CheckState = CheckState.Checked;
+            checkBoxAutoAnalyze.Location = new Point(168, 10);
+            checkBoxAutoAnalyze.Name = "checkBoxAutoAnalyze";
+            checkBoxAutoAnalyze.Size = new Size(82, 19);
+            checkBoxAutoAnalyze.TabIndex = 11;
+            checkBoxAutoAnalyze.Text = "Auto Anal.";
+            checkBoxAutoAnalyze.UseVisualStyleBackColor = true;
+            checkBoxAutoAnalyze.CheckedChanged += checkBoxAutoAnalyze_CheckedChanged;
             // 
             // buttonBulkAnalyze
             // 
@@ -197,21 +210,8 @@
             // timerEvent
             // 
             timerEvent.Enabled = true;
-            timerEvent.Interval = 10000;
+            timerEvent.Interval = 20000;
             timerEvent.Tick += timerEvent_Tick;
-            // 
-            // checkBoxAutoAnalyze
-            // 
-            checkBoxAutoAnalyze.AutoSize = true;
-            checkBoxAutoAnalyze.Checked = true;
-            checkBoxAutoAnalyze.CheckState = CheckState.Checked;
-            checkBoxAutoAnalyze.Location = new Point(168, 10);
-            checkBoxAutoAnalyze.Name = "checkBoxAutoAnalyze";
-            checkBoxAutoAnalyze.Size = new Size(82, 19);
-            checkBoxAutoAnalyze.TabIndex = 11;
-            checkBoxAutoAnalyze.Text = "Auto Anal.";
-            checkBoxAutoAnalyze.UseVisualStyleBackColor = true;
-            checkBoxAutoAnalyze.CheckedChanged += checkBoxAutoAnalyze_CheckedChanged;
             // 
             // EventsPanel
             // 

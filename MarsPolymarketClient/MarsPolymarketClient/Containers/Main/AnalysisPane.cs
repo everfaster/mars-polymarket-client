@@ -1,18 +1,18 @@
 ﻿
+using MarsPolymarketClient.Components;
+using MarsPolymarketClient.Forms;
+using MarsPolymarketClient.Global;
+using MarsPolymarketClient.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MarsPolymarketClient.Components;
-using MarsPolymarketClient.Forms;
-using MarsPolymarketClient.Global;
-using MarsPolymarketClient.Models;
 
 namespace MarsPolymarketClient.Containers.Main
 {
@@ -120,9 +120,10 @@ namespace MarsPolymarketClient.Containers.Main
             var sorted = trades.OrderBy(t => t.Timestamp).ToList();
 
             decimal totalUpAmount = 0, totalDownAmount = 0, totalAmount = 0;
+            var addresses = richTextBoxAddress.Text != "" ? richTextBoxAddress.Text.Split("\n") : [];
             foreach (var trade in sorted)
             {
-                if (textBoxAddress.Text != "" && trade.ProxyWallet != textBoxAddress.Text)
+                if (addresses.Length > 0 && !addresses.Contains(trade.ProxyWallet))
                     continue;
 
                 if (comboBoxSide.Text != "NONE" && trade.Side.ToLower() != comboBoxSide.Text.ToLower())
@@ -188,7 +189,7 @@ namespace MarsPolymarketClient.Containers.Main
                 return;
 
             var address = listViewTrade.SelectedItems[0].SubItems[1].Text;
-            textBoxAddress.Text = address;
+            SetFilterAddress(address);
         }
 
         private void listViewUser_DoubleClick(object sender, EventArgs e)
@@ -197,11 +198,9 @@ namespace MarsPolymarketClient.Containers.Main
                 return;
 
             var address = listViewUser.SelectedItems[0].SubItems[1].Text;
-            textBoxAddress.Text = address;
             _selectedAddress = address;
 
-            tabControlTrade.SelectedIndex = 1;
-
+            SetTabIndex(1);
             UpdateSummaryDetails(_selectedAddress);
         }
 
@@ -211,6 +210,7 @@ namespace MarsPolymarketClient.Containers.Main
                 return;
 
             var slug = listViewSummaryDetails.SelectedItems[0].SubItems[0].Text;
+            SetFilterAddress(_selectedAddress);
             MainForm.GetInstance().GetEventsPanel().UpdateEvent(slug);
         }
 
@@ -225,9 +225,52 @@ namespace MarsPolymarketClient.Containers.Main
             UpdateTradeDetailsList(market, trades);
         }
 
+        public void SetTabIndex(int index)
+        {
+            tabControlTrade.SelectedIndex = index;
+        }
+
+        private void SetFilterAddress(string address, bool append = false)
+        {
+            if (append)
+            {
+                var addresses = richTextBoxAddress.Text.Split("\n");
+                if (!addresses.Contains(address))
+                {
+                    if (richTextBoxAddress.Text == "")
+                        richTextBoxAddress.Text = address;
+                    else
+                        richTextBoxAddress.Text += $"\n{address}";
+                }
+            }
+            else
+            {
+                richTextBoxAddress.Text = address;
+            }
+        }
+
+        private void SetFilterAddress2(string address, bool append = false)
+        {
+            if (append)
+            {
+                var addresses = richTextBoxAddress2.Text.Split("\n");
+                if (!addresses.Contains(address))
+                {
+                    if (richTextBoxAddress2.Text == "")
+                        richTextBoxAddress2.Text = address;
+                    else
+                        richTextBoxAddress2.Text += $"\n{address}";
+                }
+            }
+            else
+            {
+                richTextBoxAddress2.Text = address;
+            }
+        }
+
         private void buttonClear_Click(object sender, EventArgs e)
         {
-            textBoxAddress.Text = "";
+            richTextBoxAddress.Text = "";
             comboBoxSide.SelectedIndex = 0;
             comboBoxSide.Select();
             comboBoxUpDown.SelectedIndex = 0;
@@ -276,24 +319,7 @@ namespace MarsPolymarketClient.Containers.Main
                 }
             }
 
-            listViewUser.Items.Clear();
-            foreach (var userSummary in _userSummaries)
-            {
-                var summary = userSummary.Value;
-                var winRate = summary.WinCount * 100m / (summary.WinCount + summary.LoseCount);
-                var item = listViewUser.Items.Add(new ListViewItem(new string[]
-                {
-                    summary.Name,
-                    summary.ProxyWallet,
-                    summary.EventCount.ToString(),
-                    summary.WinCount.ToString(),
-                    summary.LoseCount.ToString(),
-                    winRate.ToString("0.00"),
-                    summary.WinAmount.ToString("0.0"),
-                    summary.LoseAmount.ToString("0.0"),
-                    summary.TotalProfit.ToString("0.0"),
-                }));
-            }
+            UpdateUserListView();
         }
 
         private void UpdateSummaryDetails(string address)
@@ -318,6 +344,139 @@ namespace MarsPolymarketClient.Containers.Main
                     summary.TradeCount.ToString(),
                     summary.TotalAmount.ToString("0.0"),
                 }));
+            }
+        }
+
+        private void UpdateUserListView()
+        {
+            listViewUser.Items.Clear();
+
+            var addresses = richTextBoxAddress2.Text != "" ? richTextBoxAddress2.Text.Split("\n") : [];
+            int minEventCount = textBoxEventCount.Text == "" ? 0 : int.Parse(textBoxEventCount.Text);
+            decimal minWinRate = textBoxWinRate.Text == "" ? 0 : decimal.Parse(textBoxWinRate.Text);
+            decimal minTotalProfit = textBoxTotalProfit.Text == "" ? -100000000 : decimal.Parse(textBoxTotalProfit.Text);
+
+            foreach (var userSummary in _userSummaries)
+            {
+                var summary = userSummary.Value;
+
+                if (addresses.Length > 0 && !addresses.Contains(summary.ProxyWallet))
+                    continue;
+
+                if (summary.EventCount < minEventCount || summary.TotalProfit < minTotalProfit)
+                    continue;
+
+                var winRate = summary.WinCount * 100m / (summary.WinCount + summary.LoseCount);
+                if (winRate < minWinRate)
+                    continue;
+
+                var item = listViewUser.Items.Add(new ListViewItem(new string[]
+                {
+                    summary.Name,
+                    summary.ProxyWallet,
+                    summary.EventCount.ToString(),
+                    summary.WinCount.ToString(),
+                    summary.LoseCount.ToString(),
+                    winRate.ToString("0.00"),
+                    summary.WinAmount.ToString("0.0"),
+                    summary.LoseAmount.ToString("0.0"),
+                    summary.TotalProfit.ToString("0.0"),
+                }));
+            }
+        }
+
+        private void buttonFilter2_Click(object sender, EventArgs e)
+        {
+            UpdateUserListView();
+        }
+
+        private void buttonClear2_Click(object sender, EventArgs e)
+        {
+            richTextBoxAddress2.Text = "";
+            textBoxEventCount.Text = "";
+            textBoxWinRate.Text = "";
+            textBoxTotalProfit.Text = "";
+        }
+
+        private void toolStripMenuItemUserSetAddress_Click(object sender, EventArgs e)
+        {
+            if (listViewUser.SelectedItems.Count == 0)
+                return;
+
+            bool append = false;
+            foreach (ListViewItem item in listViewUser.SelectedItems)
+            {
+                var address = item.SubItems[1].Text;
+                SetFilterAddress2(address, append);
+                append = true;
+            }
+        }
+
+        private void toolStripMenuItemUserAddAddress_Click(object sender, EventArgs e)
+        {
+            if (listViewUser.SelectedItems.Count == 0)
+                return;
+
+            foreach (ListViewItem item in listViewUser.SelectedItems)
+            {
+                var address = item.SubItems[1].Text;
+                SetFilterAddress2(address, true);
+            }
+        }
+
+        private void setAddressesToFilterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewTrade.SelectedItems.Count == 0)
+                return;
+
+            bool append = false;
+            foreach (ListViewItem item in listViewTrade.SelectedItems)
+            {
+                var address = item.SubItems[1].Text;
+                SetFilterAddress(address, append);
+                append = true;
+            }
+        }
+
+        private void addAddressesToFilterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewTrade.SelectedItems.Count == 0)
+                return;
+
+            foreach (ListViewItem item in listViewTrade.SelectedItems)
+            {
+                var address = item.SubItems[1].Text;
+                SetFilterAddress(address, true);
+            }
+        }
+
+        private void listViewTrade_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // enable/disable menus
+                var enabled = listViewTrade.SelectedItems.Count > 0;
+
+                contextMenuStripTrade.Items["setAddressesToFilterToolStripMenuItem"]!.Enabled = enabled;
+                contextMenuStripTrade.Items["addAddressesToFilterToolStripMenuItem"]!.Enabled = enabled;
+
+                // show menu
+                contextMenuStripTrade.Show(Cursor.Position);
+            }
+        }
+
+        private void listViewUser_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // enable/disable menus
+                var enabled = listViewUser.SelectedItems.Count > 0;
+
+                contextMenuStripUser.Items["toolStripMenuItemUserSetAddress"]!.Enabled = enabled;
+                contextMenuStripUser.Items["toolStripMenuItemUserAddAddress"]!.Enabled = enabled;
+
+                // show menu
+                contextMenuStripUser.Show(Cursor.Position);
             }
         }
     }

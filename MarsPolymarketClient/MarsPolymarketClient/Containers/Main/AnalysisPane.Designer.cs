@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             panelRight = new Panel();
             listViewTradeDetails = new ListView();
             columnHash = new ColumnHeader();
@@ -42,13 +43,13 @@
             columnTotalDownAmount = new ColumnHeader();
             columnTotalAmount2 = new ColumnHeader();
             panelFilter = new Panel();
+            richTextBoxAddress = new RichTextBox();
             buttonClear = new Button();
             buttonFilter = new Button();
             comboBoxUpDown = new ComboBox();
             labelStaticUpDown = new Label();
             comboBoxSide = new ComboBox();
             labelStaticSide = new Label();
-            textBoxAddress = new TextBox();
             labelStaticAddress = new Label();
             panelMain = new Panel();
             panelUser = new Panel();
@@ -74,6 +75,16 @@
             columnTradeCount2 = new ColumnHeader();
             columnTradeAmount2 = new ColumnHeader();
             panelControl = new Panel();
+            textBoxTotalProfit = new TextBox();
+            textBoxWinRate = new TextBox();
+            textBoxEventCount = new TextBox();
+            labelStaticTotalProfit = new Label();
+            buttonClear2 = new Button();
+            buttonFilter2 = new Button();
+            richTextBoxAddress2 = new RichTextBox();
+            labelStaticWinRate = new Label();
+            labelStaticEventcount = new Label();
+            label3 = new Label();
             panelTrades = new Panel();
             listViewTrade = new ListView();
             columnName = new ColumnHeader();
@@ -90,6 +101,12 @@
             panelEventInfo = new Panel();
             richTextBoxTradeInfo = new RichTextBox();
             richTextBoxEventInfo = new RichTextBox();
+            contextMenuStripTrade = new ContextMenuStrip(components);
+            setAddressesToFilterToolStripMenuItem = new ToolStripMenuItem();
+            addAddressesToFilterToolStripMenuItem = new ToolStripMenuItem();
+            contextMenuStripUser = new ContextMenuStrip(components);
+            toolStripMenuItemUserSetAddress = new ToolStripMenuItem();
+            toolStripMenuItemUserAddAddress = new ToolStripMenuItem();
             panelRight.SuspendLayout();
             panelFilter.SuspendLayout();
             panelMain.SuspendLayout();
@@ -97,8 +114,11 @@
             tabControlTrade.SuspendLayout();
             tabPageUserSummary.SuspendLayout();
             tabPageSumaryDetails.SuspendLayout();
+            panelControl.SuspendLayout();
             panelTrades.SuspendLayout();
             panelEventInfo.SuspendLayout();
+            contextMenuStripTrade.SuspendLayout();
+            contextMenuStripUser.SuspendLayout();
             SuspendLayout();
             // 
             // panelRight
@@ -106,7 +126,7 @@
             panelRight.Controls.Add(listViewTradeDetails);
             panelRight.Controls.Add(panelFilter);
             panelRight.Dock = DockStyle.Right;
-            panelRight.Location = new Point(447, 0);
+            panelRight.Location = new Point(800, 0);
             panelRight.Name = "panelRight";
             panelRight.Size = new Size(700, 900);
             panelRight.TabIndex = 2;
@@ -186,19 +206,27 @@
             // 
             // panelFilter
             // 
+            panelFilter.Controls.Add(richTextBoxAddress);
             panelFilter.Controls.Add(buttonClear);
             panelFilter.Controls.Add(buttonFilter);
             panelFilter.Controls.Add(comboBoxUpDown);
             panelFilter.Controls.Add(labelStaticUpDown);
             panelFilter.Controls.Add(comboBoxSide);
             panelFilter.Controls.Add(labelStaticSide);
-            panelFilter.Controls.Add(textBoxAddress);
             panelFilter.Controls.Add(labelStaticAddress);
             panelFilter.Dock = DockStyle.Top;
             panelFilter.Location = new Point(0, 0);
             panelFilter.Name = "panelFilter";
             panelFilter.Size = new Size(700, 80);
             panelFilter.TabIndex = 5;
+            // 
+            // richTextBoxAddress
+            // 
+            richTextBoxAddress.Location = new Point(79, 13);
+            richTextBoxAddress.Name = "richTextBoxAddress";
+            richTextBoxAddress.Size = new Size(304, 56);
+            richTextBoxAddress.TabIndex = 8;
+            richTextBoxAddress.Text = "";
             // 
             // buttonClear
             // 
@@ -227,7 +255,7 @@
             comboBoxUpDown.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxUpDown.FormattingEnabled = true;
             comboBoxUpDown.Items.AddRange(new object[] { "NONE", "UP", "DOWN" });
-            comboBoxUpDown.Location = new Point(285, 46);
+            comboBoxUpDown.Location = new Point(479, 44);
             comboBoxUpDown.Name = "comboBoxUpDown";
             comboBoxUpDown.Size = new Size(100, 23);
             comboBoxUpDown.TabIndex = 5;
@@ -235,7 +263,7 @@
             // labelStaticUpDown
             // 
             labelStaticUpDown.AutoSize = true;
-            labelStaticUpDown.Location = new Point(209, 49);
+            labelStaticUpDown.Location = new Point(403, 47);
             labelStaticUpDown.Name = "labelStaticUpDown";
             labelStaticUpDown.Size = new Size(70, 15);
             labelStaticUpDown.TabIndex = 4;
@@ -246,7 +274,7 @@
             comboBoxSide.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxSide.FormattingEnabled = true;
             comboBoxSide.Items.AddRange(new object[] { "NONE", "BUY", "SELL" });
-            comboBoxSide.Location = new Point(76, 46);
+            comboBoxSide.Location = new Point(479, 14);
             comboBoxSide.Name = "comboBoxSide";
             comboBoxSide.Size = new Size(100, 23);
             comboBoxSide.TabIndex = 3;
@@ -254,23 +282,16 @@
             // labelStaticSide
             // 
             labelStaticSide.AutoSize = true;
-            labelStaticSide.Location = new Point(38, 49);
+            labelStaticSide.Location = new Point(402, 18);
             labelStaticSide.Name = "labelStaticSide";
             labelStaticSide.Size = new Size(35, 15);
             labelStaticSide.TabIndex = 2;
             labelStaticSide.Text = "Side :";
             // 
-            // textBoxAddress
-            // 
-            textBoxAddress.Location = new Point(76, 10);
-            textBoxAddress.Name = "textBoxAddress";
-            textBoxAddress.Size = new Size(309, 23);
-            textBoxAddress.TabIndex = 1;
-            // 
             // labelStaticAddress
             // 
             labelStaticAddress.AutoSize = true;
-            labelStaticAddress.Location = new Point(18, 13);
+            labelStaticAddress.Location = new Point(18, 15);
             labelStaticAddress.Name = "labelStaticAddress";
             labelStaticAddress.Size = new Size(55, 15);
             labelStaticAddress.TabIndex = 0;
@@ -283,7 +304,7 @@
             panelMain.Dock = DockStyle.Fill;
             panelMain.Location = new Point(0, 0);
             panelMain.Name = "panelMain";
-            panelMain.Size = new Size(447, 900);
+            panelMain.Size = new Size(800, 900);
             panelMain.TabIndex = 3;
             // 
             // panelUser
@@ -291,9 +312,9 @@
             panelUser.Controls.Add(tabControlTrade);
             panelUser.Controls.Add(panelControl);
             panelUser.Dock = DockStyle.Fill;
-            panelUser.Location = new Point(0, 500);
+            panelUser.Location = new Point(0, 450);
             panelUser.Name = "panelUser";
-            panelUser.Size = new Size(447, 400);
+            panelUser.Size = new Size(800, 450);
             panelUser.TabIndex = 3;
             // 
             // tabControlTrade
@@ -301,10 +322,10 @@
             tabControlTrade.Controls.Add(tabPageUserSummary);
             tabControlTrade.Controls.Add(tabPageSumaryDetails);
             tabControlTrade.Dock = DockStyle.Fill;
-            tabControlTrade.Location = new Point(0, 20);
+            tabControlTrade.Location = new Point(0, 90);
             tabControlTrade.Name = "tabControlTrade";
             tabControlTrade.SelectedIndex = 0;
-            tabControlTrade.Size = new Size(447, 380);
+            tabControlTrade.Size = new Size(800, 360);
             tabControlTrade.TabIndex = 10;
             // 
             // tabPageUserSummary
@@ -313,7 +334,7 @@
             tabPageUserSummary.Location = new Point(4, 24);
             tabPageUserSummary.Name = "tabPageUserSummary";
             tabPageUserSummary.Padding = new Padding(3);
-            tabPageUserSummary.Size = new Size(439, 352);
+            tabPageUserSummary.Size = new Size(792, 332);
             tabPageUserSummary.TabIndex = 0;
             tabPageUserSummary.Text = "User Summary";
             tabPageUserSummary.UseVisualStyleBackColor = true;
@@ -325,12 +346,13 @@
             listViewUser.FullRowSelect = true;
             listViewUser.Location = new Point(3, 3);
             listViewUser.Name = "listViewUser";
-            listViewUser.Size = new Size(433, 346);
+            listViewUser.Size = new Size(786, 326);
             listViewUser.TabIndex = 9;
             listViewUser.UseCompatibleStateImageBehavior = false;
             listViewUser.View = View.Details;
             listViewUser.ColumnClick += listViewUser_ColumnClick;
             listViewUser.DoubleClick += listViewUser_DoubleClick;
+            listViewUser.MouseUp += listViewUser_MouseUp;
             // 
             // columnName3
             // 
@@ -390,7 +412,7 @@
             tabPageSumaryDetails.Location = new Point(4, 24);
             tabPageSumaryDetails.Name = "tabPageSumaryDetails";
             tabPageSumaryDetails.Padding = new Padding(3);
-            tabPageSumaryDetails.Size = new Size(439, 352);
+            tabPageSumaryDetails.Size = new Size(792, 332);
             tabPageSumaryDetails.TabIndex = 1;
             tabPageSumaryDetails.Text = "Summary Details";
             tabPageSumaryDetails.UseVisualStyleBackColor = true;
@@ -402,7 +424,7 @@
             listViewSummaryDetails.FullRowSelect = true;
             listViewSummaryDetails.Location = new Point(3, 3);
             listViewSummaryDetails.Name = "listViewSummaryDetails";
-            listViewSummaryDetails.Size = new Size(433, 346);
+            listViewSummaryDetails.Size = new Size(786, 326);
             listViewSummaryDetails.TabIndex = 10;
             listViewSummaryDetails.UseCompatibleStateImageBehavior = false;
             listViewSummaryDetails.View = View.Details;
@@ -451,11 +473,108 @@
             // 
             // panelControl
             // 
+            panelControl.Controls.Add(textBoxTotalProfit);
+            panelControl.Controls.Add(textBoxWinRate);
+            panelControl.Controls.Add(textBoxEventCount);
+            panelControl.Controls.Add(labelStaticTotalProfit);
+            panelControl.Controls.Add(buttonClear2);
+            panelControl.Controls.Add(buttonFilter2);
+            panelControl.Controls.Add(richTextBoxAddress2);
+            panelControl.Controls.Add(labelStaticWinRate);
+            panelControl.Controls.Add(labelStaticEventcount);
+            panelControl.Controls.Add(label3);
             panelControl.Dock = DockStyle.Top;
             panelControl.Location = new Point(0, 0);
             panelControl.Name = "panelControl";
-            panelControl.Size = new Size(447, 20);
+            panelControl.Size = new Size(800, 90);
             panelControl.TabIndex = 7;
+            // 
+            // textBoxTotalProfit
+            // 
+            textBoxTotalProfit.Location = new Point(500, 56);
+            textBoxTotalProfit.Name = "textBoxTotalProfit";
+            textBoxTotalProfit.Size = new Size(80, 23);
+            textBoxTotalProfit.TabIndex = 18;
+            // 
+            // textBoxWinRate
+            // 
+            textBoxWinRate.Location = new Point(500, 32);
+            textBoxWinRate.Name = "textBoxWinRate";
+            textBoxWinRate.Size = new Size(80, 23);
+            textBoxWinRate.TabIndex = 17;
+            // 
+            // textBoxEventCount
+            // 
+            textBoxEventCount.Location = new Point(500, 8);
+            textBoxEventCount.Name = "textBoxEventCount";
+            textBoxEventCount.Size = new Size(80, 23);
+            textBoxEventCount.TabIndex = 16;
+            // 
+            // labelStaticTotalProfit
+            // 
+            labelStaticTotalProfit.AutoSize = true;
+            labelStaticTotalProfit.Location = new Point(401, 58);
+            labelStaticTotalProfit.Name = "labelStaticTotalProfit";
+            labelStaticTotalProfit.Size = new Size(84, 15);
+            labelStaticTotalProfit.TabIndex = 15;
+            labelStaticTotalProfit.Text = "Total Profit >=";
+            // 
+            // buttonClear2
+            // 
+            buttonClear2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonClear2.Location = new Point(712, 45);
+            buttonClear2.Name = "buttonClear2";
+            buttonClear2.Size = new Size(75, 30);
+            buttonClear2.TabIndex = 14;
+            buttonClear2.Text = "Clear";
+            buttonClear2.UseVisualStyleBackColor = true;
+            buttonClear2.Click += buttonClear2_Click;
+            // 
+            // buttonFilter2
+            // 
+            buttonFilter2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonFilter2.Location = new Point(712, 10);
+            buttonFilter2.Name = "buttonFilter2";
+            buttonFilter2.Size = new Size(75, 30);
+            buttonFilter2.TabIndex = 13;
+            buttonFilter2.Text = "Filter";
+            buttonFilter2.UseVisualStyleBackColor = true;
+            buttonFilter2.Click += buttonFilter2_Click;
+            // 
+            // richTextBoxAddress2
+            // 
+            richTextBoxAddress2.Location = new Point(68, 10);
+            richTextBoxAddress2.Name = "richTextBoxAddress2";
+            richTextBoxAddress2.Size = new Size(304, 70);
+            richTextBoxAddress2.TabIndex = 12;
+            richTextBoxAddress2.Text = "";
+            // 
+            // labelStaticWinRate
+            // 
+            labelStaticWinRate.AutoSize = true;
+            labelStaticWinRate.Location = new Point(412, 34);
+            labelStaticWinRate.Name = "labelStaticWinRate";
+            labelStaticWinRate.Size = new Size(73, 15);
+            labelStaticWinRate.TabIndex = 11;
+            labelStaticWinRate.Text = "Win Rate >=";
+            // 
+            // labelStaticEventcount
+            // 
+            labelStaticEventcount.AutoSize = true;
+            labelStaticEventcount.Location = new Point(394, 10);
+            labelStaticEventcount.Name = "labelStaticEventcount";
+            labelStaticEventcount.Size = new Size(91, 15);
+            labelStaticEventcount.TabIndex = 10;
+            labelStaticEventcount.Text = "Event Count >=";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(7, 12);
+            label3.Name = "label3";
+            label3.Size = new Size(55, 15);
+            label3.TabIndex = 9;
+            label3.Text = "Address :";
             // 
             // panelTrades
             // 
@@ -464,7 +583,7 @@
             panelTrades.Dock = DockStyle.Top;
             panelTrades.Location = new Point(0, 0);
             panelTrades.Name = "panelTrades";
-            panelTrades.Size = new Size(447, 500);
+            panelTrades.Size = new Size(800, 450);
             panelTrades.TabIndex = 1;
             // 
             // listViewTrade
@@ -474,12 +593,13 @@
             listViewTrade.FullRowSelect = true;
             listViewTrade.Location = new Point(0, 80);
             listViewTrade.Name = "listViewTrade";
-            listViewTrade.Size = new Size(447, 420);
+            listViewTrade.Size = new Size(800, 370);
             listViewTrade.TabIndex = 4;
             listViewTrade.UseCompatibleStateImageBehavior = false;
             listViewTrade.View = View.Details;
             listViewTrade.ColumnClick += listViewTrade_ColumnClick;
             listViewTrade.DoubleClick += listViewTrade_DoubleClick;
+            listViewTrade.MouseUp += listViewTrade_MouseUp;
             // 
             // columnName
             // 
@@ -552,7 +672,7 @@
             panelEventInfo.Dock = DockStyle.Top;
             panelEventInfo.Location = new Point(0, 0);
             panelEventInfo.Name = "panelEventInfo";
-            panelEventInfo.Size = new Size(447, 80);
+            panelEventInfo.Size = new Size(800, 80);
             panelEventInfo.TabIndex = 3;
             // 
             // richTextBoxTradeInfo
@@ -561,7 +681,7 @@
             richTextBoxTradeInfo.Location = new Point(500, 0);
             richTextBoxTradeInfo.Name = "richTextBoxTradeInfo";
             richTextBoxTradeInfo.ReadOnly = true;
-            richTextBoxTradeInfo.Size = new Size(0, 80);
+            richTextBoxTradeInfo.Size = new Size(300, 80);
             richTextBoxTradeInfo.TabIndex = 2;
             richTextBoxTradeInfo.Text = "";
             // 
@@ -575,6 +695,46 @@
             richTextBoxEventInfo.TabIndex = 1;
             richTextBoxEventInfo.Text = "";
             // 
+            // contextMenuStripTrade
+            // 
+            contextMenuStripTrade.Items.AddRange(new ToolStripItem[] { setAddressesToFilterToolStripMenuItem, addAddressesToFilterToolStripMenuItem });
+            contextMenuStripTrade.Name = "contextMenuStripTrade";
+            contextMenuStripTrade.Size = new Size(196, 48);
+            // 
+            // setAddressesToFilterToolStripMenuItem
+            // 
+            setAddressesToFilterToolStripMenuItem.Name = "setAddressesToFilterToolStripMenuItem";
+            setAddressesToFilterToolStripMenuItem.Size = new Size(195, 22);
+            setAddressesToFilterToolStripMenuItem.Text = "Set Addresses to Filter";
+            setAddressesToFilterToolStripMenuItem.Click += setAddressesToFilterToolStripMenuItem_Click;
+            // 
+            // addAddressesToFilterToolStripMenuItem
+            // 
+            addAddressesToFilterToolStripMenuItem.Name = "addAddressesToFilterToolStripMenuItem";
+            addAddressesToFilterToolStripMenuItem.Size = new Size(195, 22);
+            addAddressesToFilterToolStripMenuItem.Text = "Add Addresses to Filter";
+            addAddressesToFilterToolStripMenuItem.Click += addAddressesToFilterToolStripMenuItem_Click;
+            // 
+            // contextMenuStripUser
+            // 
+            contextMenuStripUser.Items.AddRange(new ToolStripItem[] { toolStripMenuItemUserSetAddress, toolStripMenuItemUserAddAddress });
+            contextMenuStripUser.Name = "contextMenuStripTrade";
+            contextMenuStripUser.Size = new Size(196, 48);
+            // 
+            // toolStripMenuItemUserSetAddress
+            // 
+            toolStripMenuItemUserSetAddress.Name = "toolStripMenuItemUserSetAddress";
+            toolStripMenuItemUserSetAddress.Size = new Size(195, 22);
+            toolStripMenuItemUserSetAddress.Text = "Set Addresses to Filter";
+            toolStripMenuItemUserSetAddress.Click += toolStripMenuItemUserSetAddress_Click;
+            // 
+            // toolStripMenuItemUserAddAddress
+            // 
+            toolStripMenuItemUserAddAddress.Name = "toolStripMenuItemUserAddAddress";
+            toolStripMenuItemUserAddAddress.Size = new Size(195, 22);
+            toolStripMenuItemUserAddAddress.Text = "Add Addresses to Filter";
+            toolStripMenuItemUserAddAddress.Click += toolStripMenuItemUserAddAddress_Click;
+            // 
             // AnalysisPane
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -582,7 +742,7 @@
             Controls.Add(panelMain);
             Controls.Add(panelRight);
             Name = "AnalysisPane";
-            Size = new Size(1147, 900);
+            Size = new Size(1500, 900);
             Load += AnalysisPane_Load;
             panelRight.ResumeLayout(false);
             panelFilter.ResumeLayout(false);
@@ -592,8 +752,12 @@
             tabControlTrade.ResumeLayout(false);
             tabPageUserSummary.ResumeLayout(false);
             tabPageSumaryDetails.ResumeLayout(false);
+            panelControl.ResumeLayout(false);
+            panelControl.PerformLayout();
             panelTrades.ResumeLayout(false);
             panelEventInfo.ResumeLayout(false);
+            contextMenuStripTrade.ResumeLayout(false);
+            contextMenuStripUser.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -633,7 +797,6 @@
         private Panel panelFilter;
         private Label labelStaticAddress;
         private Label labelStaticSide;
-        private TextBox textBoxAddress;
         private Button buttonClear;
         private Button buttonFilter;
         private ComboBox comboBoxUpDown;
@@ -661,5 +824,22 @@
         private ColumnHeader columnTotalProfit3;
         private ColumnHeader columnTradeCount2;
         private ColumnHeader columnTradeAmount2;
+        private RichTextBox richTextBoxAddress;
+        private Label labelStaticTotalProfit;
+        private Button buttonClear2;
+        private Button buttonFilter2;
+        private RichTextBox richTextBoxAddress2;
+        private Label labelStaticWinRate;
+        private Label labelStaticEventcount;
+        private Label label3;
+        private TextBox textBoxTotalProfit;
+        private TextBox textBoxWinRate;
+        private TextBox textBoxEventCount;
+        private ContextMenuStrip contextMenuStripTrade;
+        private ToolStripMenuItem setAddressesToFilterToolStripMenuItem;
+        private ToolStripMenuItem addAddressesToFilterToolStripMenuItem;
+        private ContextMenuStrip contextMenuStripUser;
+        private ToolStripMenuItem toolStripMenuItemUserSetAddress;
+        private ToolStripMenuItem toolStripMenuItemUserAddAddress;
     }
 }

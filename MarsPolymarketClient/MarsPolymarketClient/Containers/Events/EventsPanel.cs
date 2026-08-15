@@ -65,9 +65,15 @@ namespace MarsPolymarketClient.Containers.Events
             {
                 now = now - timeframe;
                 string slug = Utils.GetFullSlugName(prefix, now);
-
+                
                 if (!DataCenter.Events.ContainsKey(slug))
+                {
                     DataCenter.Events[slug] = new Event();
+
+                    bool exists = PolymarketService.IsDataExists(slug);
+                    if (exists)
+                        UpdateEvent(slug, false);
+                }
 
                 var item = listViewSlug.Items.Add(new ListViewItem(new string[]
                 {
@@ -283,6 +289,8 @@ namespace MarsPolymarketClient.Containers.Events
 
             var analysisPane = MainForm.GetInstance().GetAnalysisPane();
             analysisPane.BulkAnalyze(slugs);
+
+            MainForm.GetInstance().GetAnalysisPane().SetTabIndex(0);
         }
 
         private void timerEvent_Tick(object sender, EventArgs e)
