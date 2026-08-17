@@ -39,11 +39,6 @@ namespace MarsPolymarketClient.Forms
 
         private void buttonLogin_Click(object sender, EventArgs e)
         {
-            // test code
-            DialogResult = DialogResult.OK;
-            Dispose();
-            //
-
             string password = textBoxPassword.Text;
             if (password == "")
             {
@@ -52,6 +47,7 @@ namespace MarsPolymarketClient.Forms
             }
 
             buttonLogin.Enabled = false;
+            textBoxPassword.Enabled = false;
 
             var task = Task.Run(() =>
             {
@@ -77,6 +73,7 @@ namespace MarsPolymarketClient.Forms
                     BeginInvoke(new MethodInvoker(delegate
                     {
                         buttonLogin.Enabled = true;
+                        textBoxPassword.Enabled = true;
                         textBoxPassword.SelectAll();
                     }));
                 }
@@ -94,6 +91,12 @@ namespace MarsPolymarketClient.Forms
         private void LoginForm_Load(object sender, EventArgs e)
         {
             textBoxPassword.Text = AppSettings.EncryptionIv;
+        }
+
+        private void buttonOffline_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Dispose();
         }
     }
 }

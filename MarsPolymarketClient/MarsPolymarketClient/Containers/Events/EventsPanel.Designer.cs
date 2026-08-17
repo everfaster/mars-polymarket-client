@@ -210,7 +210,7 @@
             // timerEvent
             // 
             timerEvent.Enabled = true;
-            timerEvent.Interval = 20000;
+            timerEvent.Interval = 1000;
             timerEvent.Tick += timerEvent_Tick;
             // 
             // EventsPanel

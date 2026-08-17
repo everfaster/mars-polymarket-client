@@ -7,6 +7,9 @@
     <Compile Update="Containers\Main\AnalysisPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Containers\Main\TradePane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Forms\AccountSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -16,7 +19,7 @@
     <Compile Update="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\NoteInputForm.cs">
+    <Compile Update="Forms\TradeSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

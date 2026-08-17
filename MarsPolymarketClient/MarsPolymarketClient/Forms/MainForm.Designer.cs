@@ -36,6 +36,8 @@
             tabControlMain = new TabControl();
             tabPageAnalysis = new TabPage();
             analysisPane = new MarsPolymarketClient.Containers.Main.AnalysisPane();
+            tabPageTrade = new TabPage();
+            tradePane = new MarsPolymarketClient.Containers.Main.TradePane();
             notifyIconAlert = new NotifyIcon(components);
             panelStatus = new Panel();
             labelAccount = new Label();
@@ -46,10 +48,13 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             viewToolStripMenuItem = new ToolStripMenuItem();
+            panelRequestStatus = new Panel();
+            labelStaticRequest = new Label();
             panelLeft.SuspendLayout();
             panelMain.SuspendLayout();
             tabControlMain.SuspendLayout();
             tabPageAnalysis.SuspendLayout();
+            tabPageTrade.SuspendLayout();
             panelStatus.SuspendLayout();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -85,6 +90,7 @@
             // tabControlMain
             // 
             tabControlMain.Controls.Add(tabPageAnalysis);
+            tabControlMain.Controls.Add(tabPageTrade);
             tabControlMain.Dock = DockStyle.Fill;
             tabControlMain.Location = new Point(0, 0);
             tabControlMain.Margin = new Padding(2);
@@ -112,6 +118,24 @@
             analysisPane.Size = new Size(757, 562);
             analysisPane.TabIndex = 1;
             // 
+            // tabPageTrade
+            // 
+            tabPageTrade.Controls.Add(tradePane);
+            tabPageTrade.Location = new Point(4, 24);
+            tabPageTrade.Name = "tabPageTrade";
+            tabPageTrade.Size = new Size(757, 562);
+            tabPageTrade.TabIndex = 3;
+            tabPageTrade.Text = "Trade";
+            tabPageTrade.UseVisualStyleBackColor = true;
+            // 
+            // tradePane
+            // 
+            tradePane.Dock = DockStyle.Fill;
+            tradePane.Location = new Point(0, 0);
+            tradePane.Name = "tradePane";
+            tradePane.Size = new Size(757, 562);
+            tradePane.TabIndex = 0;
+            // 
             // notifyIconAlert
             // 
             notifyIconAlert.BalloonTipIcon = ToolTipIcon.Info;
@@ -122,6 +146,8 @@
             // panelStatus
             // 
             panelStatus.BackColor = Color.LightCoral;
+            panelStatus.Controls.Add(panelRequestStatus);
+            panelStatus.Controls.Add(labelStaticRequest);
             panelStatus.Controls.Add(labelAccount);
             panelStatus.Controls.Add(labelBetExecutionTime);
             panelStatus.Controls.Add(panelServerStatus);
@@ -199,6 +225,24 @@
             viewToolStripMenuItem.Size = new Size(44, 20);
             viewToolStripMenuItem.Text = "&View";
             // 
+            // panelRequestStatus
+            // 
+            panelRequestStatus.BackColor = Color.DarkRed;
+            panelRequestStatus.Location = new Point(130, 7);
+            panelRequestStatus.Margin = new Padding(3, 2, 3, 2);
+            panelRequestStatus.Name = "panelRequestStatus";
+            panelRequestStatus.Size = new Size(8, 7);
+            panelRequestStatus.TabIndex = 9;
+            // 
+            // labelStaticRequest
+            // 
+            labelStaticRequest.AutoSize = true;
+            labelStaticRequest.Location = new Point(76, 3);
+            labelStaticRequest.Name = "labelStaticRequest";
+            labelStaticRequest.Size = new Size(49, 15);
+            labelStaticRequest.TabIndex = 8;
+            labelStaticRequest.Text = "Request";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -221,6 +265,7 @@
             panelMain.ResumeLayout(false);
             tabControlMain.ResumeLayout(false);
             tabPageAnalysis.ResumeLayout(false);
+            tabPageTrade.ResumeLayout(false);
             panelStatus.ResumeLayout(false);
             panelStatus.PerformLayout();
             menuStrip1.ResumeLayout(false);
@@ -246,5 +291,9 @@
         private Label labelAccount;
         private Containers.Events.EventsPanel eventsPanel;
         private Containers.Main.AnalysisPane analysisPane;
+        private TabPage tabPageTrade;
+        private Containers.Main.TradePane tradePane;
+        private Panel panelRequestStatus;
+        private Label labelStaticRequest;
     }
 }

@@ -1,12 +1,11 @@
-﻿
-using MarsPolymarketClient.Components;
+﻿using MarsPolymarketClient.Components;
 using MarsPolymarketClient.Forms;
 using MarsPolymarketClient.Global;
 using MarsPolymarketClient.Models;
+using SocketIOClient.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -61,6 +60,8 @@ namespace MarsPolymarketClient.Containers.Main
 
         private void UpdateTradeList(Market market, List<Trade> trades, Dictionary<string, TradeSummary> summaries)
         {
+            listViewTrade.BeginUpdate();
+
             listViewTrade.Items.Clear();
 
             int outComeIndex = Math.Round(decimal.Parse(market.OutcomePrices[0])) == 1 ? 0 : 1;
@@ -94,6 +95,8 @@ namespace MarsPolymarketClient.Containers.Main
                 }));
             }
 
+            listViewTrade.EndUpdate();
+
             // show trade summary info
             string info = $"Total Trades = {trades.Count}\t\tTotal Trade Amount = {totalTradeAmount.ToString("0.0")}\r\n";
             info += $"Total User Count = {summaries.Count}\t\tTotal Profit = {(totalWinAmount + totalLossAmount).ToString("0.0")}\r\n";
@@ -115,15 +118,18 @@ namespace MarsPolymarketClient.Containers.Main
 
         private void UpdateTradeDetailsList(Market market, List<Trade> trades)
         {
+            listViewTradeDetails.BeginUpdate();
+
             listViewTradeDetails.Items.Clear();
 
             var sorted = trades.OrderBy(t => t.Timestamp).ToList();
 
             decimal totalUpAmount = 0, totalDownAmount = 0, totalAmount = 0;
-            var addresses = richTextBoxAddress.Text != "" ? richTextBoxAddress.Text.Split("\n") : [];
+            var addresses = richTextBoxAddress.Text != "" ?
+                richTextBoxAddress.Text.Split("\n").Select(a => a.ToLower()).ToArray() : [];
             foreach (var trade in sorted)
             {
-                if (addresses.Length > 0 && !addresses.Contains(trade.ProxyWallet))
+                if (addresses.Length > 0 && !addresses.Contains(trade.ProxyWallet.ToLower()))
                     continue;
 
                 if (comboBoxSide.Text != "NONE" && trade.Side.ToLower() != comboBoxSide.Text.ToLower())
@@ -157,6 +163,8 @@ namespace MarsPolymarketClient.Containers.Main
                     totalAmount.ToString("0.0")
                 }));
             }
+
+            listViewTradeDetails.EndUpdate();
         }
 
         private void listViewTrade_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -201,6 +209,7 @@ namespace MarsPolymarketClient.Containers.Main
             _selectedAddress = address;
 
             SetTabIndex(1);
+            SetFilterAddress(_selectedAddress);
             UpdateSummaryDetails(_selectedAddress);
         }
 
@@ -210,7 +219,6 @@ namespace MarsPolymarketClient.Containers.Main
                 return;
 
             var slug = listViewSummaryDetails.SelectedItems[0].SubItems[0].Text;
-            SetFilterAddress(_selectedAddress);
             MainForm.GetInstance().GetEventsPanel().UpdateEvent(slug);
         }
 
@@ -234,8 +242,8 @@ namespace MarsPolymarketClient.Containers.Main
         {
             if (append)
             {
-                var addresses = richTextBoxAddress.Text.Split("\n");
-                if (!addresses.Contains(address))
+                var addresses = richTextBoxAddress.Text.Split("\n").Select(a => a.ToLower()).ToArray();
+                if (!addresses.Contains(address.ToLower()))
                 {
                     if (richTextBoxAddress.Text == "")
                         richTextBoxAddress.Text = address;
@@ -253,8 +261,8 @@ namespace MarsPolymarketClient.Containers.Main
         {
             if (append)
             {
-                var addresses = richTextBoxAddress2.Text.Split("\n");
-                if (!addresses.Contains(address))
+                var addresses = richTextBoxAddress2.Text.Split("\n").Select(a => a.ToLower()).ToArray();
+                if (!addresses.Contains(address.ToLower()))
                 {
                     if (richTextBoxAddress2.Text == "")
                         richTextBoxAddress2.Text = address;
@@ -314,6 +322,7 @@ namespace MarsPolymarketClient.Containers.Main
                         userSummary.LoseAmount += summary.Value.TotalProfit;
                     }
 
+                    userSummary.Fee += summary.Value.Fee;
                     userSummary.TotalProfit += summary.Value.TotalProfit;
                     userSummary.Slugs.Add(slug);
                 }
@@ -327,31 +336,39 @@ namespace MarsPolymarketClient.Containers.Main
             if (!_userSummaries.ContainsKey(address))
                 return;
 
+            listViewSummaryDetails.BeginUpdate();
+
             listViewSummaryDetails.Items.Clear();
 
             var slugs = _userSummaries[address].Slugs;
             foreach (var slug in slugs)
             {
                 var summary = DataCenter.Events[slug].TradeSummaries[address];
-
+                var totalProfit = checkBoxFee.Checked ? summary.TotalProfit - summary.Fee : summary.TotalProfit;
                 var item = listViewSummaryDetails.Items.Add(new ListViewItem(new string[]
                 {
                     slug,
                     summary.Name,
                     summary.UpProfit.ToString("0.0"),
                     summary.DownProfit.ToString("0.0"),
-                    summary.TotalProfit.ToString("0.0"),
                     summary.TradeCount.ToString(),
                     summary.TotalAmount.ToString("0.0"),
+                    summary.Fee.ToString("0.0"),
+                    totalProfit.ToString("0.0"),
                 }));
             }
+
+            listViewSummaryDetails.EndUpdate();
         }
 
         private void UpdateUserListView()
         {
+            listViewUser.BeginUpdate();
+
             listViewUser.Items.Clear();
 
-            var addresses = richTextBoxAddress2.Text != "" ? richTextBoxAddress2.Text.Split("\n") : [];
+            var addresses = richTextBoxAddress2.Text != "" ?
+                richTextBoxAddress2.Text.Split("\n").Select(a => a.ToLower()).ToArray() : [];
             int minEventCount = textBoxEventCount.Text == "" ? 0 : int.Parse(textBoxEventCount.Text);
             decimal minWinRate = textBoxWinRate.Text == "" ? 0 : decimal.Parse(textBoxWinRate.Text);
             decimal minTotalProfit = textBoxTotalProfit.Text == "" ? -100000000 : decimal.Parse(textBoxTotalProfit.Text);
@@ -360,7 +377,7 @@ namespace MarsPolymarketClient.Containers.Main
             {
                 var summary = userSummary.Value;
 
-                if (addresses.Length > 0 && !addresses.Contains(summary.ProxyWallet))
+                if (addresses.Length > 0 && !addresses.Contains(summary.ProxyWallet.ToLower()))
                     continue;
 
                 if (summary.EventCount < minEventCount || summary.TotalProfit < minTotalProfit)
@@ -370,6 +387,7 @@ namespace MarsPolymarketClient.Containers.Main
                 if (winRate < minWinRate)
                     continue;
 
+                var totalProfit = checkBoxFee.Checked ? summary.TotalProfit - summary.Fee : summary.TotalProfit;
                 var item = listViewUser.Items.Add(new ListViewItem(new string[]
                 {
                     summary.Name,
@@ -380,9 +398,12 @@ namespace MarsPolymarketClient.Containers.Main
                     winRate.ToString("0.00"),
                     summary.WinAmount.ToString("0.0"),
                     summary.LoseAmount.ToString("0.0"),
-                    summary.TotalProfit.ToString("0.0"),
+                    summary.Fee.ToString("0.0"),
+                    totalProfit.ToString("0.0"),
                 }));
             }
+
+            listViewUser.EndUpdate();
         }
 
         private void buttonFilter2_Click(object sender, EventArgs e)
@@ -478,6 +499,40 @@ namespace MarsPolymarketClient.Containers.Main
                 // show menu
                 contextMenuStripUser.Show(Cursor.Position);
             }
+        }
+
+        private void copyAddressToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewUser.SelectedItems.Count == 0)
+                return;
+
+            string addresses = "";
+            foreach (ListViewItem item in listViewUser.SelectedItems)
+            {
+                if (addresses == "")
+                    addresses = item.SubItems[1].Text;
+                else
+                    addresses += $",{item.SubItems[1].Text}";
+            }
+
+            Clipboard.SetText(addresses);
+        }
+
+        private void copyAddressToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (listViewTrade.SelectedItems.Count == 0)
+                return;
+
+            string addresses = "";
+            foreach (ListViewItem item in listViewTrade.SelectedItems)
+            {
+                if (addresses == "")
+                    addresses = item.SubItems[1].Text;
+                else
+                    addresses += $",{item.SubItems[1].Text}";
+            }
+
+            Clipboard.SetText(addresses);
         }
     }
 }

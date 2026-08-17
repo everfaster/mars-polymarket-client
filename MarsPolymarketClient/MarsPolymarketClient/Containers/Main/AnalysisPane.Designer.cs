@@ -64,6 +64,7 @@
             columnWinRate = new ColumnHeader();
             columnWinAmount = new ColumnHeader();
             columnLossAmount = new ColumnHeader();
+            columnHeaderFee2 = new ColumnHeader();
             columnTotalProfit2 = new ColumnHeader();
             tabPageSumaryDetails = new TabPage();
             listViewSummaryDetails = new ListView();
@@ -71,10 +72,12 @@
             columnAddress4 = new ColumnHeader();
             columnUpProfit2 = new ColumnHeader();
             columnDownProfit2 = new ColumnHeader();
-            columnTotalProfit3 = new ColumnHeader();
             columnTradeCount2 = new ColumnHeader();
             columnTradeAmount2 = new ColumnHeader();
+            columnFee3 = new ColumnHeader();
+            columnTotalProfit3 = new ColumnHeader();
             panelControl = new Panel();
+            checkBoxFee = new CheckBox();
             textBoxTotalProfit = new TextBox();
             textBoxWinRate = new TextBox();
             textBoxEventCount = new TextBox();
@@ -107,6 +110,8 @@
             contextMenuStripUser = new ContextMenuStrip(components);
             toolStripMenuItemUserSetAddress = new ToolStripMenuItem();
             toolStripMenuItemUserAddAddress = new ToolStripMenuItem();
+            copyAddressToolStripMenuItem = new ToolStripMenuItem();
+            copyAddressToolStripMenuItem1 = new ToolStripMenuItem();
             panelRight.SuspendLayout();
             panelFilter.SuspendLayout();
             panelMain.SuspendLayout();
@@ -341,7 +346,7 @@
             // 
             // listViewUser
             // 
-            listViewUser.Columns.AddRange(new ColumnHeader[] { columnName3, columnAddress3, columnEventCount, columnWinCount, columnLossCount, columnWinRate, columnWinAmount, columnLossAmount, columnTotalProfit2 });
+            listViewUser.Columns.AddRange(new ColumnHeader[] { columnName3, columnAddress3, columnEventCount, columnWinCount, columnLossCount, columnWinRate, columnWinAmount, columnLossAmount, columnHeaderFee2, columnTotalProfit2 });
             listViewUser.Dock = DockStyle.Fill;
             listViewUser.FullRowSelect = true;
             listViewUser.Location = new Point(3, 3);
@@ -400,6 +405,11 @@
             columnLossAmount.TextAlign = HorizontalAlignment.Right;
             columnLossAmount.Width = 85;
             // 
+            // columnHeaderFee2
+            // 
+            columnHeaderFee2.Text = "Fee";
+            columnHeaderFee2.TextAlign = HorizontalAlignment.Right;
+            // 
             // columnTotalProfit2
             // 
             columnTotalProfit2.Text = "Total Profit";
@@ -419,7 +429,7 @@
             // 
             // listViewSummaryDetails
             // 
-            listViewSummaryDetails.Columns.AddRange(new ColumnHeader[] { columnSlug, columnAddress4, columnUpProfit2, columnDownProfit2, columnTotalProfit3, columnTradeCount2, columnTradeAmount2 });
+            listViewSummaryDetails.Columns.AddRange(new ColumnHeader[] { columnSlug, columnAddress4, columnUpProfit2, columnDownProfit2, columnTradeCount2, columnTradeAmount2, columnFee3, columnTotalProfit3 });
             listViewSummaryDetails.Dock = DockStyle.Fill;
             listViewSummaryDetails.FullRowSelect = true;
             listViewSummaryDetails.Location = new Point(3, 3);
@@ -453,12 +463,6 @@
             columnDownProfit2.TextAlign = HorizontalAlignment.Right;
             columnDownProfit2.Width = 80;
             // 
-            // columnTotalProfit3
-            // 
-            columnTotalProfit3.Text = "Total Profit";
-            columnTotalProfit3.TextAlign = HorizontalAlignment.Right;
-            columnTotalProfit3.Width = 80;
-            // 
             // columnTradeCount2
             // 
             columnTradeCount2.Text = "Trade Count";
@@ -471,8 +475,20 @@
             columnTradeAmount2.TextAlign = HorizontalAlignment.Right;
             columnTradeAmount2.Width = 90;
             // 
+            // columnFee3
+            // 
+            columnFee3.Text = "Fee";
+            columnFee3.TextAlign = HorizontalAlignment.Right;
+            // 
+            // columnTotalProfit3
+            // 
+            columnTotalProfit3.Text = "Total Profit";
+            columnTotalProfit3.TextAlign = HorizontalAlignment.Right;
+            columnTotalProfit3.Width = 80;
+            // 
             // panelControl
             // 
+            panelControl.Controls.Add(checkBoxFee);
             panelControl.Controls.Add(textBoxTotalProfit);
             panelControl.Controls.Add(textBoxWinRate);
             panelControl.Controls.Add(textBoxEventCount);
@@ -488,6 +504,18 @@
             panelControl.Name = "panelControl";
             panelControl.Size = new Size(800, 90);
             panelControl.TabIndex = 7;
+            // 
+            // checkBoxFee
+            // 
+            checkBoxFee.AutoSize = true;
+            checkBoxFee.Checked = true;
+            checkBoxFee.CheckState = CheckState.Checked;
+            checkBoxFee.Location = new Point(602, 9);
+            checkBoxFee.Name = "checkBoxFee";
+            checkBoxFee.Size = new Size(44, 19);
+            checkBoxFee.TabIndex = 19;
+            checkBoxFee.Text = "Fee";
+            checkBoxFee.UseVisualStyleBackColor = true;
             // 
             // textBoxTotalProfit
             // 
@@ -697,9 +725,9 @@
             // 
             // contextMenuStripTrade
             // 
-            contextMenuStripTrade.Items.AddRange(new ToolStripItem[] { setAddressesToFilterToolStripMenuItem, addAddressesToFilterToolStripMenuItem });
+            contextMenuStripTrade.Items.AddRange(new ToolStripItem[] { setAddressesToFilterToolStripMenuItem, addAddressesToFilterToolStripMenuItem, copyAddressToolStripMenuItem1 });
             contextMenuStripTrade.Name = "contextMenuStripTrade";
-            contextMenuStripTrade.Size = new Size(196, 48);
+            contextMenuStripTrade.Size = new Size(196, 92);
             // 
             // setAddressesToFilterToolStripMenuItem
             // 
@@ -717,9 +745,9 @@
             // 
             // contextMenuStripUser
             // 
-            contextMenuStripUser.Items.AddRange(new ToolStripItem[] { toolStripMenuItemUserSetAddress, toolStripMenuItemUserAddAddress });
+            contextMenuStripUser.Items.AddRange(new ToolStripItem[] { toolStripMenuItemUserSetAddress, toolStripMenuItemUserAddAddress, copyAddressToolStripMenuItem });
             contextMenuStripUser.Name = "contextMenuStripTrade";
-            contextMenuStripUser.Size = new Size(196, 48);
+            contextMenuStripUser.Size = new Size(196, 70);
             // 
             // toolStripMenuItemUserSetAddress
             // 
@@ -734,6 +762,20 @@
             toolStripMenuItemUserAddAddress.Size = new Size(195, 22);
             toolStripMenuItemUserAddAddress.Text = "Add Addresses to Filter";
             toolStripMenuItemUserAddAddress.Click += toolStripMenuItemUserAddAddress_Click;
+            // 
+            // copyAddressToolStripMenuItem
+            // 
+            copyAddressToolStripMenuItem.Name = "copyAddressToolStripMenuItem";
+            copyAddressToolStripMenuItem.Size = new Size(195, 22);
+            copyAddressToolStripMenuItem.Text = "Copy Address";
+            copyAddressToolStripMenuItem.Click += copyAddressToolStripMenuItem_Click;
+            // 
+            // copyAddressToolStripMenuItem1
+            // 
+            copyAddressToolStripMenuItem1.Name = "copyAddressToolStripMenuItem1";
+            copyAddressToolStripMenuItem1.Size = new Size(195, 22);
+            copyAddressToolStripMenuItem1.Text = "Copy Address";
+            copyAddressToolStripMenuItem1.Click += copyAddressToolStripMenuItem1_Click;
             // 
             // AnalysisPane
             // 
@@ -841,5 +883,10 @@
         private ContextMenuStrip contextMenuStripUser;
         private ToolStripMenuItem toolStripMenuItemUserSetAddress;
         private ToolStripMenuItem toolStripMenuItemUserAddAddress;
+        private ColumnHeader columnHeaderFee2;
+        private ColumnHeader columnFee3;
+        private CheckBox checkBoxFee;
+        private ToolStripMenuItem copyAddressToolStripMenuItem1;
+        private ToolStripMenuItem copyAddressToolStripMenuItem;
     }
 }

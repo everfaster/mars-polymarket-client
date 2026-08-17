@@ -1,6 +1,6 @@
 ﻿namespace MarsPolymarketClient.Forms
 {
-    partial class NoteInputForm
+    partial class TradeSettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,35 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NoteInputForm));
-            textBoxNote = new TextBox();
-            labelStaticNote = new Label();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TradeSettingsForm));
             buttonCancel = new Button();
             buttonOK = new Button();
+            richTextBoxSettings = new RichTextBox();
             SuspendLayout();
-            // 
-            // textBoxNote
-            // 
-            textBoxNote.Location = new Point(97, 23);
-            textBoxNote.Name = "textBoxNote";
-            textBoxNote.Size = new Size(357, 31);
-            textBoxNote.TabIndex = 23;
-            // 
-            // labelStaticNote
-            // 
-            labelStaticNote.AutoSize = true;
-            labelStaticNote.Location = new Point(29, 23);
-            labelStaticNote.Name = "labelStaticNote";
-            labelStaticNote.Size = new Size(55, 25);
-            labelStaticNote.TabIndex = 24;
-            labelStaticNote.Text = "Note:";
             // 
             // buttonCancel
             // 
             buttonCancel.DialogResult = DialogResult.Cancel;
-            buttonCancel.Location = new Point(334, 78);
+            buttonCancel.Location = new Point(235, 223);
+            buttonCancel.Margin = new Padding(2);
             buttonCancel.Name = "buttonCancel";
-            buttonCancel.Size = new Size(120, 45);
+            buttonCancel.Size = new Size(84, 27);
             buttonCancel.TabIndex = 26;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
@@ -64,36 +48,42 @@
             // buttonOK
             // 
             buttonOK.DialogResult = DialogResult.OK;
-            buttonOK.Location = new Point(208, 78);
+            buttonOK.Location = new Point(147, 223);
+            buttonOK.Margin = new Padding(2);
             buttonOK.Name = "buttonOK";
-            buttonOK.Size = new Size(120, 45);
+            buttonOK.Size = new Size(84, 27);
             buttonOK.TabIndex = 25;
             buttonOK.Text = "OK";
             buttonOK.UseVisualStyleBackColor = true;
             buttonOK.Click += buttonOK_Click;
             // 
-            // NoteInputForm
+            // richTextBoxSettings
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            richTextBoxSettings.Location = new Point(12, 12);
+            richTextBoxSettings.Name = "richTextBoxSettings";
+            richTextBoxSettings.Size = new Size(307, 206);
+            richTextBoxSettings.TabIndex = 27;
+            richTextBoxSettings.Text = "";
+            // 
+            // TradeSettingsForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(477, 149);
+            ClientSize = new Size(334, 261);
+            Controls.Add(richTextBoxSettings);
             Controls.Add(buttonCancel);
             Controls.Add(buttonOK);
-            Controls.Add(textBoxNote);
-            Controls.Add(labelStaticNote);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "NoteInputForm";
+            Margin = new Padding(2);
+            Name = "TradeSettingsForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Note Input Form";
+            Text = "Trade Settings";
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-
-        private TextBox textBoxNote;
-        private Label labelStaticNote;
         private Button buttonCancel;
         private Button buttonOK;
+        private RichTextBox richTextBoxSettings;
     }
 }

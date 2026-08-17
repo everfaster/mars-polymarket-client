@@ -35,6 +35,7 @@ namespace MarsPolymarketClient.Models
         public decimal DownBuy { get; set; } = 0;
         public decimal DownSell { get; set; } = 0;
         public decimal DownProfit { get; set; } = 0;
+        public decimal Fee { get; set; } = 0;
         public decimal TotalProfit { get; set; } = 0;
         public int TradeCount { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
@@ -50,6 +51,7 @@ namespace MarsPolymarketClient.Models
         public int LoseCount { get; set; } = 0;
         public decimal WinAmount { get; set; } = 0;
         public decimal LoseAmount { get; set; } = 0;
+        public decimal Fee { get; set; } = 0;
         public decimal TotalProfit { get; set; } = 0;
     }
 }

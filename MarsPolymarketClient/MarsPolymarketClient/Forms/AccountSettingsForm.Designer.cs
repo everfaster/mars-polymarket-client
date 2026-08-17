@@ -121,12 +121,12 @@
             // comboBoxExchange
             // 
             comboBoxExchange.FormattingEnabled = true;
+            comboBoxExchange.Items.AddRange(new object[] { "PolyMarket" });
             comboBoxExchange.Location = new Point(81, 21);
             comboBoxExchange.Margin = new Padding(2);
             comboBoxExchange.Name = "comboBoxExchange";
             comboBoxExchange.Size = new Size(120, 23);
             comboBoxExchange.TabIndex = 0;
-            comboBoxExchange.SelectedIndexChanged += comboBoxExchange_SelectedIndexChanged;
             // 
             // labelStaticAPIKey
             // 

@@ -1,11 +1,4 @@
 ﻿
-using MarsPolymarketClient.Components;
-using MarsPolymarketClient.Global;
-using MarsPolymarketClient.Helpers;
-using MarsPolymarketClient.Models;
-using MarsPolymarketClient.Services;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Data;
 using System.Drawing;
@@ -14,12 +7,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using MarsPolymarketClient.Components;
+using MarsPolymarketClient.Global;
+using MarsPolymarketClient.Helpers;
+using MarsPolymarketClient.Models;
+using MarsPolymarketClient.Services;
 
 namespace MarsPolymarketClient.Forms
 {
     public partial class AccountSettingsForm : Form
     {
         private int _count = 0;
+        private bool _updated = false;
 
         public AccountSettingsForm()
         {
@@ -29,6 +31,14 @@ namespace MarsPolymarketClient.Forms
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             RefreshAccountList();
+
+            comboBoxExchange.SelectedIndex = 0;
+            comboBoxExchange.Select();
+        }
+
+        public bool IsUpdated()
+        {
+            return _updated;
         }
 
         private void RefreshAccountList()
@@ -39,6 +49,7 @@ namespace MarsPolymarketClient.Forms
             {
                 var item = listViewAccount.Items.Add(new ListViewItem(new string[]
                 {
+                    "PolyMarket",
                     $"{account.SessionKey.Substring(0, 6)}******",
                     account.SessionKey == AppSettings.ActiveSessionKey ? "Activated": ""
                 }));
@@ -53,63 +64,44 @@ namespace MarsPolymarketClient.Forms
                 return;
             }
 
-            buttonStart.Enabled = false;
-            buttonClose.Enabled = false;
+            EnableComponents(false);
 
             var task = Task.Run(() =>
             {
                 try
                 {
-                    var sessionKey = PolymarketService.StartService(
+                    var result = PolymarketService.StartService(
                         textBoxAPIKey.Text, textBoxAPISecret.Text, textBoxAPIPass.Text).Result;
 
-                    BeginInvoke(new MethodInvoker(delegate
+                    if (result != null)
                     {
-                        if (AppSettings.GetClientAccount(sessionKey) == null)
+                        BeginInvoke(new MethodInvoker(delegate
                         {
-                            ClientAccount newAccount = new ClientAccount();
-                            newAccount.SessionKey = sessionKey;
+                            var account = AppSettings.UpdateClientAccount(result);
+                            ActivateAccount(account);
 
-                            AppSettings.ClientAccounts.Add(newAccount);
-                        }
+                            MainForm.GetInstance().ShowAlert($"Starting Service Success!");
+                            EnableComponents(true);
 
-                        var account = AppSettings.GetClientAccount(sessionKey);
-                        ActivateAccount(account);
-
-                        MainForm.GetInstance().ShowAlert($"Starting Service Success!");
-                        buttonStart.Enabled = true;
-                        buttonClose.Enabled = true;
-                    }));
+                            _updated = true;
+                        }));
+                    }
                 }
                 catch (Exception e)
                 {
                     BeginInvoke(new MethodInvoker(delegate
                     {
                         MainForm.GetInstance().ShowAlert($"Starting service failed!\r\n{e.Message}");
-                        buttonStart.Enabled = true;
-                        buttonClose.Enabled = true;
+                        EnableComponents(true);
                     }));
                 }
             });
         }
 
-        private void comboBoxExchange_SelectedIndexChanged(object sender, EventArgs e)
+        private void EnableComponents(bool enable)
         {
-            switch (comboBoxExchange.SelectedIndex)
-            {
-                case 0: // binance
-                    textBoxAPISecret.Enabled = true;
-                    textBoxAPIPass.Enabled = false;
-                    break;
-                case 1: // okx
-                    textBoxAPISecret.Enabled = true;
-                    textBoxAPIPass.Enabled = true;
-                    break;
-                case 2: // hyperliquid
-                    textBoxAPISecret.Enabled = false;
-                    textBoxAPIPass.Enabled = false;
-                    break;
-            }
+            buttonStart.Enabled = enable;
+            buttonClose.Enabled = enable;
         }
 
         private void buttonSwitch_Click(object sender, EventArgs e)
@@ -167,6 +159,7 @@ namespace MarsPolymarketClient.Forms
                         }
 
                         buttonRemove.Enabled = true;
+                        _updated = true;
                     }));
                 }
                 catch (Exception e)

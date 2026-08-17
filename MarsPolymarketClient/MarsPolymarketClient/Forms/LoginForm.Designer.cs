@@ -31,11 +31,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
             textBoxPassword = new TextBox();
             buttonLogin = new Button();
+            buttonOffline = new Button();
             SuspendLayout();
             // 
             // textBoxPassword
             // 
-            textBoxPassword.Location = new Point(12, 12);
+            textBoxPassword.Location = new Point(9, 12);
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.PasswordChar = '*';
             textBoxPassword.Size = new Size(155, 23);
@@ -44,7 +45,7 @@
             // 
             // buttonLogin
             // 
-            buttonLogin.Location = new Point(173, 9);
+            buttonLogin.Location = new Point(170, 9);
             buttonLogin.Name = "buttonLogin";
             buttonLogin.Size = new Size(75, 30);
             buttonLogin.TabIndex = 1;
@@ -52,11 +53,22 @@
             buttonLogin.UseVisualStyleBackColor = true;
             buttonLogin.Click += buttonLogin_Click;
             // 
+            // buttonOffline
+            // 
+            buttonOffline.Location = new Point(251, 9);
+            buttonOffline.Name = "buttonOffline";
+            buttonOffline.Size = new Size(75, 30);
+            buttonOffline.TabIndex = 2;
+            buttonOffline.Text = "Go Offline";
+            buttonOffline.UseVisualStyleBackColor = true;
+            buttonOffline.Click += buttonOffline_Click;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(260, 45);
+            ClientSize = new Size(334, 45);
+            Controls.Add(buttonOffline);
             Controls.Add(buttonLogin);
             Controls.Add(textBoxPassword);
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -72,5 +84,6 @@
 
         private TextBox textBoxPassword;
         private Button buttonLogin;
+        private Button buttonOffline;
     }
 }

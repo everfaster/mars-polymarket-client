@@ -21,6 +21,8 @@ namespace MarsPolymarketClient.Containers.Events
     {
         string _prefix = "";
         int _offset = 0;
+        int _timer = 0;
+        int _eventIndex = 0;
 
         public EventsPanel()
         {
@@ -39,21 +41,19 @@ namespace MarsPolymarketClient.Containers.Events
                 listBoxEvent.Items.Add(item.Item1);
             }
 
-            UpdateSlugList(Constants.EVENTS[0].Item2);
+            UpdateSlugList(Constants.EVENTS[_eventIndex].Item2);
         }
 
         private void listBoxEvent_DoubleClick(object sender, EventArgs e)
         {
-            int index = listBoxEvent.SelectedIndex;
-
-            if (index == -1)
-                return;
-
-            UpdateSlugList(Constants.EVENTS[index].Item2);
+            _eventIndex = listBoxEvent.SelectedIndex;
+            UpdateSlugList(Constants.EVENTS[_eventIndex].Item2);
         }
 
         private void UpdateSlugList(string prefix)
         {
+            listViewSlug.BeginUpdate();
+
             listViewSlug.Items.Clear();
 
             int timeframe = Utils.GetTimeframeSeconds(prefix);
@@ -61,7 +61,7 @@ namespace MarsPolymarketClient.Containers.Events
 
             int count = int.Parse(textBoxCount.Text);
 
-            for (int i = 1; i <= count; i++)
+            for (int i = 2; i <= count; i++)
             {
                 now = now - timeframe;
                 string slug = Utils.GetFullSlugName(prefix, now);
@@ -83,12 +83,12 @@ namespace MarsPolymarketClient.Containers.Events
             }
 
             _prefix = prefix;
+
+            listViewSlug.EndUpdate();
         }
 
         public void UpdateEvent(string slug, bool update = true)
         {
-            var analysisPane = MainForm.GetInstance().GetAnalysisPane();
-
             if (!DataCenter.Events.ContainsKey(slug))
                 DataCenter.Events[slug] = new Event();
 
@@ -97,7 +97,10 @@ namespace MarsPolymarketClient.Containers.Events
             if (polyEvent.Analyzed)
             {
                 if (update)
+                {
+                    var analysisPane = MainForm.GetInstance().GetAnalysisPane();
                     analysisPane.UpdateEvent(slug);
+                }
 
                 return;
             }
@@ -188,7 +191,6 @@ namespace MarsPolymarketClient.Containers.Events
 
             int outComeIndex = Math.Round(decimal.Parse(market.OutcomePrices[0])) == 1 ? 0 : 1;
             int userCount = 0;
-            decimal totalTradeAmount = 0, totalWinAmount = 0, totalLossAmount = 0;
 
             foreach (var trade in trades)
             {
@@ -234,7 +236,7 @@ namespace MarsPolymarketClient.Containers.Events
 
                 summary.TradeCount++;
                 summary.TotalAmount += trade.Size * trade.Price;
-                totalTradeAmount += trade.Size * trade.Price;
+                summary.Fee += trade.Size * Constants.FEE_RATE * trade.Price * (1 - trade.Price);
             }
 
             foreach (var summary in summaries.Values)
@@ -249,10 +251,6 @@ namespace MarsPolymarketClient.Containers.Events
                 }
 
                 summary.TotalProfit = summary.UpProfit + summary.DownProfit;
-                if (summary.TotalProfit > 0)
-                    totalWinAmount += summary.TotalProfit;
-                else
-                    totalLossAmount += summary.TotalProfit;
             }
 
             return summaries;
@@ -294,6 +292,28 @@ namespace MarsPolymarketClient.Containers.Events
         }
 
         private void timerEvent_Tick(object sender, EventArgs e)
+        {
+            const int MAX_TIMER_VALUE = 10000;
+            const int UPDATE_SLUG_LIST_INTERVAL = 5 * 60 * 3;
+            const int UPDATE_SLUG_ITEM_INTERVAL = 20;
+
+            if (_timer == MAX_TIMER_VALUE)
+                _timer = 0;
+
+            if (_timer % UPDATE_SLUG_LIST_INTERVAL == 0)
+            {
+                UpdateSlugList(Constants.EVENTS[_eventIndex].Item2);
+            }
+
+            if (_timer % UPDATE_SLUG_ITEM_INTERVAL == 0)
+            {
+                UpdateSlugItems();
+            }
+
+            _timer++;
+        }
+
+        private void UpdateSlugItems()
         {
             foreach (ListViewItem item in listViewSlug.Items)
             {

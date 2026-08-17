@@ -13,6 +13,7 @@ namespace MarsPolymarketClient.Global
         public static readonly string SELL = "SELL";
         public static readonly string UP = "Up";
         public static readonly string DOWN = "Down";
+        public static readonly decimal FEE_RATE = 0.07m;
 
         public static List<(string, string)> EVENTS = new()
         {

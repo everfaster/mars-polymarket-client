@@ -66,6 +66,11 @@ namespace MarsPolymarketClient.Forms
             {
                 AccountSettingsForm accountSettingsForm = new AccountSettingsForm();
                 accountSettingsForm.ShowDialog();
+
+                if (accountSettingsForm.IsUpdated())
+                {
+                    tradePane.RefreshSessionList();
+                }
             }
         }
 
@@ -97,6 +102,11 @@ namespace MarsPolymarketClient.Forms
                 panelServerStatus.BackColor = connected ? Color.DarkGreen : Color.DarkRed;
                 panelStatus.BackColor = connected ? Color.Transparent : Color.LightCoral;
             }));
+        }
+
+        public void SetRequestStatus(bool connected)
+        {
+            panelRequestStatus.BackColor = connected ? Color.DarkGreen : Color.DarkRed;
         }
 
         private void MainForm_Resize(object sender, EventArgs e)

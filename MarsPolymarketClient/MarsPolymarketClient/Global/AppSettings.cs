@@ -72,9 +72,23 @@ namespace MarsPolymarketClient.Global
             }
         }
 
-        public static ClientAccount GetClientAccount(string sessionKey)
+        public static ClientAccount UpdateClientAccount(ClientAccount newAccount)
         {
-            return ClientAccounts?.Find(a => a.SessionKey == sessionKey) ?? throw new Exception("account not found");
+            var account = ClientAccounts.Find(a => a.SessionKey == newAccount.SessionKey);
+            if (account != null)
+            {
+                account.Status = newAccount.Status;
+                return account;
+            }
+
+            ClientAccounts.Add(newAccount);
+
+            return newAccount;
+        }
+
+        public static ClientAccount? GetClientAccount(string sessionKey)
+        {
+            return ClientAccounts.Find(a => a.SessionKey == sessionKey);
         }
     }
 }

@@ -20,6 +20,11 @@ namespace MarsPolymarketClient.Services
         static string LOGIN_URL = $"{AppSettings.ServerAddress}/api/session/login";
         static string START_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/start";
         static string STOP_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/stop";
+        static string START_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/start";
+        static string STOP_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/stop";
+        static string GET_TRADE_STATUS_URL = $"{AppSettings.ServerAddress}/api/session/trade/status";
+        static string SET_TRADE_OPTIONS_URL = $"{AppSettings.ServerAddress}/api/session/trade/options";
+        static string CLAIM_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/claim";
 
         public static bool ServerConnected = false;
 
@@ -72,14 +77,12 @@ namespace MarsPolymarketClient.Services
             return jsonString;
         }
 
-        public static async Task<string> StartService(string apiKey, string apiSecret, string apiPass = "")
+        public static async Task<ClientAccount?> StartService(string apiKey, string apiSecret, string apiPass = "")
         {
             HttpClient client = new HttpClient();
 
             JObject parameter = new JObject();
-            parameter["apiKey"] = apiKey;
-            parameter["apiSecret"] = apiSecret;
-            parameter["apiPass"] = apiPass;
+            parameter["privateKey"] = apiKey;
 
             var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
             var content = new FormUrlEncodedContent(new[] {
@@ -88,15 +91,12 @@ namespace MarsPolymarketClient.Services
             var response = await client.PostAsync(START_SESSION_URL, content);
 
             var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
 
-            if (jsonString.StartsWith("{\"error\""))
-            {
-                var jObject = JObject.Parse(jsonString);
+            if (jObject["error"] != null)
                 throw new Exception(jObject["error"]?.ToString());
-            }
 
-            return JObject.Parse(jsonString)["sessionKey"]?.ToString() ??
-                throw new Exception("sessionKey not found");
+            return JsonConvert.DeserializeObject<ClientAccount>(jsonString);
         }
 
         public static async Task<bool> StopService(string sessionKey)
@@ -119,6 +119,118 @@ namespace MarsPolymarketClient.Services
                 var jObject = JObject.Parse(jsonString);
                 throw new Exception(jObject["error"]?.ToString());
             }
+
+            return true;
+        }
+
+        public static async Task<bool> StartTrade(string sessionKey, string tradeOptions)
+        {
+            HttpClient client = new HttpClient();
+
+            JObject parameter = new JObject();
+            parameter["sessionKey"] = sessionKey;
+            parameter["tradeOptions"] = tradeOptions;
+
+            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            });
+            var response = await client.PostAsync(START_TRADE_URL, content);
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
+
+            if (jObject["error"] != null)
+                throw new Exception(jObject["error"]?.ToString());
+
+            return jObject["running"]?.ToObject<bool>() ?? false;
+        }
+
+        public static async Task<bool> StopTrade(string sessionKey)
+        {
+            HttpClient client = new HttpClient();
+
+            JObject parameter = new JObject();
+            parameter["sessionKey"] = sessionKey;
+
+            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            });
+            var response = await client.PostAsync(STOP_TRADE_URL, content);
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
+
+            if (jObject["error"] != null)
+                throw new Exception(jObject["error"]?.ToString());
+
+            return true;
+        }
+
+        public static async Task<bool> SetTradeOptions(string sessionKey, string tradeOptions)
+        {
+            HttpClient client = new HttpClient();
+
+            JObject parameter = new JObject();
+            parameter["sessionKey"] = sessionKey;
+            parameter["tradeOptions"] = tradeOptions;
+
+            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            });
+            var response = await client.PostAsync(SET_TRADE_OPTIONS_URL, content);
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
+
+            if (jObject["error"] != null)
+                throw new Exception(jObject["error"]?.ToString());
+
+            return jObject["running"]?.ToObject<bool>() ?? false;
+        }
+
+        public static async Task<TradeStatus?> GetTradeStatus(string sessionKey)
+        {
+            HttpClient client = new HttpClient();
+
+            JObject parameter = new JObject();
+            parameter["sessionKey"] = sessionKey;
+
+            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            });
+            var response = await client.PostAsync(GET_TRADE_STATUS_URL, content);
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
+
+            if (jObject["error"] != null)
+                throw new Exception(jObject["error"]?.ToString());
+
+            return jObject.ToObject<TradeStatus?>();
+        }
+
+        public static async Task<bool> ClaimTrades(string sessionKey)
+        {
+            HttpClient client = new HttpClient();
+
+            JObject parameter = new JObject();
+            parameter["sessionKey"] = sessionKey;
+
+            var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
+            });
+            var response = await client.PostAsync(CLAIM_TRADE_URL, content);
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(jsonString);
+
+            if (jObject["error"] != null)
+                throw new Exception(jObject["error"]?.ToString());
 
             return true;
         }
