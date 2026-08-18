@@ -91,6 +91,7 @@
             listViewSlug.TabIndex = 5;
             listViewSlug.UseCompatibleStateImageBehavior = false;
             listViewSlug.View = View.Details;
+            listViewSlug.SelectedIndexChanged += listViewSlug_SelectedIndexChanged;
             listViewSlug.DoubleClick += listViewSlug_DoubleClick;
             // 
             // columnSlug

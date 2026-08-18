@@ -65,7 +65,7 @@ namespace MarsPolymarketClient.Containers.Events
             {
                 now = now - timeframe;
                 string slug = Utils.GetFullSlugName(prefix, now);
-                
+
                 if (!DataCenter.Events.ContainsKey(slug))
                 {
                     DataCenter.Events[slug] = new Event();
@@ -143,6 +143,8 @@ namespace MarsPolymarketClient.Containers.Events
                         MainForm.GetInstance().ShowAlert(message);
 
                         UpdateSlugListStatus(slug, "Failed");
+
+                        checkBoxAutoAnalyze.Checked = false;
                     }));
                 }
             });
@@ -333,6 +335,15 @@ namespace MarsPolymarketClient.Containers.Events
         private void checkBoxAutoAnalyze_CheckedChanged(object sender, EventArgs e)
         {
             timerEvent.Enabled = checkBoxAutoAnalyze.Checked;
+        }
+        
+        private void listViewSlug_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listViewSlug.SelectedItems.Count == 0)
+                return;
+
+            var slug = listViewSlug.SelectedItems[0].SubItems[0].Text;
+            textBoxSlug.Text = slug;
         }
     }
 }

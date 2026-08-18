@@ -380,7 +380,11 @@ namespace MarsPolymarketClient.Containers.Main
                 if (addresses.Length > 0 && !addresses.Contains(summary.ProxyWallet.ToLower()))
                     continue;
 
-                if (summary.EventCount < minEventCount || summary.TotalProfit < minTotalProfit)
+                if (summary.EventCount < minEventCount)
+                    continue;
+
+                if (checkBoxFee.Checked && summary.TotalProfit - summary.Fee < minTotalProfit ||
+                    !checkBoxFee.Checked && summary.TotalProfit < minTotalProfit)
                     continue;
 
                 var winRate = summary.WinCount * 100m / (summary.WinCount + summary.LoseCount);
