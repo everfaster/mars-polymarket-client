@@ -32,12 +32,15 @@
             buttonCancel = new Button();
             buttonOK = new Button();
             richTextBoxSettings = new RichTextBox();
+            comboBoxStrategyType = new ComboBox();
+            labelStaticStrategyType = new Label();
+            buttonReload = new Button();
             SuspendLayout();
             // 
             // buttonCancel
             // 
             buttonCancel.DialogResult = DialogResult.Cancel;
-            buttonCancel.Location = new Point(235, 223);
+            buttonCancel.Location = new Point(235, 367);
             buttonCancel.Margin = new Padding(2);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new Size(84, 27);
@@ -48,7 +51,7 @@
             // buttonOK
             // 
             buttonOK.DialogResult = DialogResult.OK;
-            buttonOK.Location = new Point(147, 223);
+            buttonOK.Location = new Point(147, 367);
             buttonOK.Margin = new Padding(2);
             buttonOK.Name = "buttonOK";
             buttonOK.Size = new Size(84, 27);
@@ -59,17 +62,50 @@
             // 
             // richTextBoxSettings
             // 
-            richTextBoxSettings.Location = new Point(12, 12);
+            richTextBoxSettings.Location = new Point(12, 43);
             richTextBoxSettings.Name = "richTextBoxSettings";
-            richTextBoxSettings.Size = new Size(307, 206);
+            richTextBoxSettings.Size = new Size(307, 319);
             richTextBoxSettings.TabIndex = 27;
             richTextBoxSettings.Text = "";
+            // 
+            // comboBoxStrategyType
+            // 
+            comboBoxStrategyType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxStrategyType.FormattingEnabled = true;
+            comboBoxStrategyType.Location = new Point(99, 12);
+            comboBoxStrategyType.Name = "comboBoxStrategyType";
+            comboBoxStrategyType.Size = new Size(121, 23);
+            comboBoxStrategyType.TabIndex = 28;
+            comboBoxStrategyType.SelectedIndexChanged += comboBoxStrategyType_SelectedIndexChanged;
+            // 
+            // labelStaticStrategyType
+            // 
+            labelStaticStrategyType.AutoSize = true;
+            labelStaticStrategyType.Location = new Point(12, 15);
+            labelStaticStrategyType.Name = "labelStaticStrategyType";
+            labelStaticStrategyType.Size = new Size(81, 15);
+            labelStaticStrategyType.TabIndex = 29;
+            labelStaticStrategyType.Text = "StrategyType :";
+            // 
+            // buttonReload
+            // 
+            buttonReload.Location = new Point(59, 367);
+            buttonReload.Margin = new Padding(2);
+            buttonReload.Name = "buttonReload";
+            buttonReload.Size = new Size(84, 27);
+            buttonReload.TabIndex = 30;
+            buttonReload.Text = "Reload";
+            buttonReload.UseVisualStyleBackColor = true;
+            buttonReload.Click += buttonReload_Click;
             // 
             // TradeSettingsForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(334, 261);
+            ClientSize = new Size(334, 411);
+            Controls.Add(buttonReload);
+            Controls.Add(labelStaticStrategyType);
+            Controls.Add(comboBoxStrategyType);
             Controls.Add(richTextBoxSettings);
             Controls.Add(buttonCancel);
             Controls.Add(buttonOK);
@@ -79,11 +115,15 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Trade Settings";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
         private Button buttonCancel;
         private Button buttonOK;
         private RichTextBox richTextBoxSettings;
+        private ComboBox comboBoxStrategyType;
+        private Label labelStaticStrategyType;
+        private Button buttonReload;
     }
 }

@@ -47,15 +47,15 @@ namespace MarsPolymarketClient.Containers.Main
                     account.SessionKey,
                     (++index).ToString(),
                     account.Address,
+                    account.Status.StrategyType,
                     account.Status.Running ? "RUNNING" : "STOPPED",
-                    "",
                     account.Status.Profit.ToString("0.00"),
                     account.Status.Balance.ToString("0.00"),
                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 }));
 
                 item.UseItemStyleForSubItems = false;
-                item.SubItems[3].ForeColor = account.Status.Running ? Color.Green : Color.Red;
+                item.SubItems[4].ForeColor = account.Status.Running ? Color.Green : Color.Red;
             }
         }
 
@@ -144,13 +144,16 @@ namespace MarsPolymarketClient.Containers.Main
                 return;
             }
 
-            TradeSettingsForm form = new TradeSettingsForm(account.Status.TradeOptions);
+            TradeSettingsForm form = new TradeSettingsForm(account.Status.StrategyType, account.Status.TradeOptions);
             if (form.ShowDialog() == DialogResult.OK && form.IsUpdated())
             {
-                account.Status.TradeOptions = form.GetSettings();
+                account.Status.TradeOptions = form.GetOptions();
+                account.Status.StrategyType = form.GetStrategyType();
 
                 if (account.Status.Running)
                     RequestSetTradeOptions(account);
+                    
+                RefreshSessionList();
             }
         }
 
@@ -197,7 +200,8 @@ namespace MarsPolymarketClient.Containers.Main
             {
                 try
                 {
-                    var result = PolymarketService.StartTrade(account.SessionKey, account.Status.TradeOptions).Result;
+                    var result = PolymarketService.StartTrade(account.SessionKey, 
+                        account.Status.StrategyType, account.Status.TradeOptions).Result;
                     if (result)
                     {
                         BeginInvoke(new MethodInvoker(delegate

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MarsPolymarketClient.Global;
+using MarsPolymarketClient.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,15 +16,37 @@ namespace MarsPolymarketClient.Forms
 {
     public partial class TradeSettingsForm : Form
     {
-        string _settings = "";
+        string _strategyType = "", _options;
         bool _updated = false;
 
-        public TradeSettingsForm(string settings)
+        public TradeSettingsForm(string strategyType, string options)
         {
             InitializeComponent();
 
-            _settings = JToken.Parse(settings).ToString(Formatting.Indented);
-            richTextBoxSettings.Text = _settings;
+            InitStrategyComboBox();
+
+            _strategyType = strategyType;
+            _options = JToken.Parse(options).ToString(Formatting.Indented);
+
+            if (strategyType == string.Empty)
+            {
+                comboBoxStrategyType.SelectedIndex = 0;
+                comboBoxStrategyType.Select();
+            }
+            else
+            {
+                comboBoxStrategyType.SelectedItem = _strategyType;
+                comboBoxStrategyType.Select();
+                richTextBoxSettings.Text = _options;
+            }
+        }
+
+        private void InitStrategyComboBox()
+        {
+            foreach (var strategy in DataCenter.Strategies)
+            {
+                comboBoxStrategyType.Items.Add(strategy.StrategyType);
+            }
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -32,8 +56,9 @@ namespace MarsPolymarketClient.Forms
             try
             {
                 JObject.Parse(settings);
-                _updated = richTextBoxSettings.Text != _settings;
-                _settings = richTextBoxSettings.Text;
+                _updated = richTextBoxSettings.Text != _options;
+                _options = richTextBoxSettings.Text;
+                _strategyType = comboBoxStrategyType.SelectedItem?.ToString() ?? string.Empty;
             }
             catch (Exception ex)
             {
@@ -42,8 +67,23 @@ namespace MarsPolymarketClient.Forms
             }
         }
 
-        public string GetSettings() { return _settings; }
+        public string GetOptions() { return _options; }
+        public string GetStrategyType() { return _strategyType; }
 
         public bool IsUpdated() { return _updated; }
+
+        private void comboBoxStrategyType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var strategyType = comboBoxStrategyType.SelectedItem?.ToString();
+            var options = 
+                DataCenter.Strategies.FirstOrDefault(s => s.StrategyType == strategyType)?.DefaultOptions ?? string.Empty;
+
+            richTextBoxSettings.Text = JToken.Parse(options).ToString(Formatting.Indented);
+        }
+
+        private void buttonReload_Click(object sender, EventArgs e)
+        {
+            richTextBoxSettings.Text = _options;
+        }
     }
 }

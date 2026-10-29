@@ -29,6 +29,16 @@ namespace MarsPolymarketClient.Containers.Events
             InitializeComponent();
         }
 
+        public string GetSelectedSlug()
+        {
+            return textBoxSlug.Text;
+        }
+
+        public decimal GetMaxPrice()
+        {
+            return decimal.Parse(textBoxPrice.Text);
+        }
+
         private void EventsPanel_Load(object sender, EventArgs e)
         {
             LoadEventListBox();
@@ -60,8 +70,8 @@ namespace MarsPolymarketClient.Containers.Events
             long now = Utils.GetCurrentSlugTimeStamp(prefix) - timeframe * _offset;
 
             int count = int.Parse(textBoxCount.Text);
-
-            for (int i = 2; i <= count; i++)
+            int startIndex = 4;
+            for (int i = startIndex; i < count + startIndex; i++)
             {
                 now = now - timeframe;
                 string slug = Utils.GetFullSlugName(prefix, now);
@@ -193,9 +203,13 @@ namespace MarsPolymarketClient.Containers.Events
 
             int outComeIndex = Math.Round(decimal.Parse(market.OutcomePrices[0])) == 1 ? 0 : 1;
             int userCount = 0;
+            decimal maxPrice = GetMaxPrice();
 
             foreach (var trade in trades)
             {
+                if (trade.Price >= maxPrice)
+                    continue;
+
                 if (!summaries.ContainsKey(trade.ProxyWallet))
                 {
                     summaries[trade.ProxyWallet] = new TradeSummary
@@ -238,7 +252,7 @@ namespace MarsPolymarketClient.Containers.Events
 
                 summary.TradeCount++;
                 summary.TotalAmount += trade.Size * trade.Price;
-                summary.Fee += trade.Size * Constants.FEE_RATE * trade.Price * (1 - trade.Price);
+                summary.Fee += trade.IsTaker ? trade.Size * Constants.FEE_RATE * trade.Price * (1 - trade.Price) : 0;
             }
 
             foreach (var summary in summaries.Values)
@@ -336,7 +350,7 @@ namespace MarsPolymarketClient.Containers.Events
         {
             timerEvent.Enabled = checkBoxAutoAnalyze.Checked;
         }
-        
+
         private void listViewSlug_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listViewSlug.SelectedItems.Count == 0)
@@ -344,6 +358,24 @@ namespace MarsPolymarketClient.Containers.Events
 
             var slug = listViewSlug.SelectedItems[0].SubItems[0].Text;
             textBoxSlug.Text = slug;
+        }
+
+        private void buttonReanalyze_Click(object sender, EventArgs e)
+        {
+            if (listViewSlug.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select multiple items in slug list view.", "ERROR");
+                return;
+            }
+
+            List<string> slugs = new List<string>();
+            foreach (ListViewItem item in listViewSlug.SelectedItems)
+                slugs.Add(item.SubItems[0].Text);
+
+            foreach (var slug in slugs)
+            {
+                HandleEventRequest(slug, false);
+            }
         }
     }
 }

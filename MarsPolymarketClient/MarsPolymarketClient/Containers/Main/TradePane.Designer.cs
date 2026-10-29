@@ -45,8 +45,8 @@
             columnKey = new ColumnHeader();
             columnNo = new ColumnHeader();
             columnAddress = new ColumnHeader();
+            columnStrategy = new ColumnHeader();
             columnStatus = new ColumnHeader();
-            columnEventCount = new ColumnHeader();
             columnTotalProfit = new ColumnHeader();
             columnBalance = new ColumnHeader();
             columnLastUpdated = new ColumnHeader();
@@ -180,7 +180,7 @@
             // 
             // listViewSession
             // 
-            listViewSession.Columns.AddRange(new ColumnHeader[] { columnKey, columnNo, columnAddress, columnStatus, columnEventCount, columnTotalProfit, columnBalance, columnLastUpdated });
+            listViewSession.Columns.AddRange(new ColumnHeader[] { columnKey, columnNo, columnAddress, columnStrategy, columnStatus, columnTotalProfit, columnBalance, columnLastUpdated });
             listViewSession.Dock = DockStyle.Fill;
             listViewSession.FullRowSelect = true;
             listViewSession.Location = new Point(0, 0);
@@ -206,17 +206,16 @@
             columnAddress.Text = "Address";
             columnAddress.Width = 180;
             // 
+            // columnStrategy
+            // 
+            columnStrategy.Text = "Strategy";
+            columnStrategy.Width = 150;
+            // 
             // columnStatus
             // 
             columnStatus.Text = "Status";
             columnStatus.TextAlign = HorizontalAlignment.Center;
             columnStatus.Width = 100;
-            // 
-            // columnEventCount
-            // 
-            columnEventCount.Text = "Event Count";
-            columnEventCount.TextAlign = HorizontalAlignment.Right;
-            columnEventCount.Width = 100;
             // 
             // columnTotalProfit
             // 
@@ -271,7 +270,6 @@
         private ColumnHeader columnNo;
         private ColumnHeader columnAddress;
         private ColumnHeader columnStatus;
-        private ColumnHeader columnEventCount;
         private ColumnHeader columnTotalProfit;
         private Button buttonSettings;
         private Button buttonStop;
@@ -283,5 +281,6 @@
         private System.Windows.Forms.Timer timerSession;
         private Button buttonStartRequest;
         private Button buttonClaim;
+        private ColumnHeader columnStrategy;
     }
 }

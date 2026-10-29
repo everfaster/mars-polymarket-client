@@ -42,6 +42,7 @@
             columnTotalUpAmount = new ColumnHeader();
             columnTotalDownAmount = new ColumnHeader();
             columnTotalAmount2 = new ColumnHeader();
+            columnMode = new ColumnHeader();
             panelFilter = new Panel();
             richTextBoxAddress = new RichTextBox();
             buttonClear = new Button();
@@ -62,9 +63,10 @@
             columnWinCount = new ColumnHeader();
             columnLossCount = new ColumnHeader();
             columnWinRate = new ColumnHeader();
-            columnWinAmount = new ColumnHeader();
-            columnLossAmount = new ColumnHeader();
-            columnHeaderFee2 = new ColumnHeader();
+            columnAvgAmount = new ColumnHeader();
+            columnAvgProfit = new ColumnHeader();
+            columnProfitFactor = new ColumnHeader();
+            columnFee2 = new ColumnHeader();
             columnTotalProfit2 = new ColumnHeader();
             tabPageSumaryDetails = new TabPage();
             listViewSummaryDetails = new ListView();
@@ -107,11 +109,21 @@
             contextMenuStripTrade = new ContextMenuStrip(components);
             setAddressesToFilterToolStripMenuItem = new ToolStripMenuItem();
             addAddressesToFilterToolStripMenuItem = new ToolStripMenuItem();
+            copyAddressToolStripMenuItem1 = new ToolStripMenuItem();
+            exportToExcelFileToolStripMenuItem1 = new ToolStripMenuItem();
             contextMenuStripUser = new ContextMenuStrip(components);
             toolStripMenuItemUserSetAddress = new ToolStripMenuItem();
             toolStripMenuItemUserAddAddress = new ToolStripMenuItem();
             copyAddressToolStripMenuItem = new ToolStripMenuItem();
-            copyAddressToolStripMenuItem1 = new ToolStripMenuItem();
+            exportToExcelFileToolStripMenuItem = new ToolStripMenuItem();
+            contextMenuSummaryDetails = new ContextMenuStrip(components);
+            exportToExcelFileToolStripMenuItem2 = new ToolStripMenuItem();
+            contextMenuStripTradeDetails = new ContextMenuStrip(components);
+            exportToExcelFileToolStripMenuItem3 = new ToolStripMenuItem();
+            columnTotalUpSize = new ColumnHeader();
+            columnTotalDownSize = new ColumnHeader();
+            columnTotalUpProfit = new ColumnHeader();
+            columnTotalDownProfit = new ColumnHeader();
             panelRight.SuspendLayout();
             panelFilter.SuspendLayout();
             panelMain.SuspendLayout();
@@ -124,6 +136,8 @@
             panelEventInfo.SuspendLayout();
             contextMenuStripTrade.SuspendLayout();
             contextMenuStripUser.SuspendLayout();
+            contextMenuSummaryDetails.SuspendLayout();
+            contextMenuStripTradeDetails.SuspendLayout();
             SuspendLayout();
             // 
             // panelRight
@@ -138,7 +152,7 @@
             // 
             // listViewTradeDetails
             // 
-            listViewTradeDetails.Columns.AddRange(new ColumnHeader[] { columnHash, columnTimestamp, columnName2, columnSide, columnUpDown, columnSize, columnPrice, columnAmount, columnTotalUpAmount, columnTotalDownAmount, columnTotalAmount2 });
+            listViewTradeDetails.Columns.AddRange(new ColumnHeader[] { columnHash, columnTimestamp, columnName2, columnSide, columnUpDown, columnSize, columnPrice, columnAmount, columnTotalUpAmount, columnTotalDownAmount, columnTotalAmount2, columnMode, columnTotalUpSize, columnTotalDownSize, columnTotalUpProfit, columnTotalDownProfit });
             listViewTradeDetails.Dock = DockStyle.Fill;
             listViewTradeDetails.FullRowSelect = true;
             listViewTradeDetails.Location = new Point(0, 80);
@@ -148,10 +162,11 @@
             listViewTradeDetails.UseCompatibleStateImageBehavior = false;
             listViewTradeDetails.View = View.Details;
             listViewTradeDetails.ColumnClick += listViewTradeDetails_ColumnClick;
+            listViewTradeDetails.MouseUp += listViewTradeDetails_MouseUp;
             // 
             // columnHash
             // 
-            columnHash.Text = "Address";
+            columnHash.Text = "Hash";
             columnHash.Width = 0;
             // 
             // columnTimestamp
@@ -180,6 +195,7 @@
             // 
             columnSize.Text = "Size";
             columnSize.TextAlign = HorizontalAlignment.Right;
+            columnSize.Width = 50;
             // 
             // columnPrice
             // 
@@ -208,6 +224,12 @@
             columnTotalAmount2.Text = "Total Amt";
             columnTotalAmount2.TextAlign = HorizontalAlignment.Right;
             columnTotalAmount2.Width = 80;
+            // 
+            // columnMode
+            // 
+            columnMode.Text = "Mode";
+            columnMode.TextAlign = HorizontalAlignment.Center;
+            columnMode.Width = 50;
             // 
             // panelFilter
             // 
@@ -346,7 +368,7 @@
             // 
             // listViewUser
             // 
-            listViewUser.Columns.AddRange(new ColumnHeader[] { columnName3, columnAddress3, columnEventCount, columnWinCount, columnLossCount, columnWinRate, columnWinAmount, columnLossAmount, columnHeaderFee2, columnTotalProfit2 });
+            listViewUser.Columns.AddRange(new ColumnHeader[] { columnName3, columnAddress3, columnEventCount, columnWinCount, columnLossCount, columnWinRate, columnAvgAmount, columnAvgProfit, columnProfitFactor, columnFee2, columnTotalProfit2 });
             listViewUser.Dock = DockStyle.Fill;
             listViewUser.FullRowSelect = true;
             listViewUser.Location = new Point(3, 3);
@@ -362,7 +384,7 @@
             // columnName3
             // 
             columnName3.Text = "Name";
-            columnName3.Width = 140;
+            columnName3.Width = 150;
             // 
             // columnAddress3
             // 
@@ -371,44 +393,46 @@
             // 
             // columnEventCount
             // 
-            columnEventCount.Text = "Event Count";
+            columnEventCount.Text = "Events";
             columnEventCount.TextAlign = HorizontalAlignment.Right;
-            columnEventCount.Width = 80;
             // 
             // columnWinCount
             // 
-            columnWinCount.Text = "Win Count";
+            columnWinCount.Text = "Wins";
             columnWinCount.TextAlign = HorizontalAlignment.Right;
-            columnWinCount.Width = 80;
             // 
             // columnLossCount
             // 
-            columnLossCount.Text = "Loss Count";
+            columnLossCount.Text = "Losses";
             columnLossCount.TextAlign = HorizontalAlignment.Right;
-            columnLossCount.Width = 80;
             // 
             // columnWinRate
             // 
             columnWinRate.Text = "Win Rate";
             columnWinRate.TextAlign = HorizontalAlignment.Right;
-            columnWinRate.Width = 80;
             // 
-            // columnWinAmount
+            // columnAvgAmount
             // 
-            columnWinAmount.Text = "Win Amount";
-            columnWinAmount.TextAlign = HorizontalAlignment.Right;
-            columnWinAmount.Width = 80;
+            columnAvgAmount.Text = "Avg Amount";
+            columnAvgAmount.TextAlign = HorizontalAlignment.Right;
+            columnAvgAmount.Width = 80;
             // 
-            // columnLossAmount
+            // columnAvgProfit
             // 
-            columnLossAmount.Text = "Loss Amount";
-            columnLossAmount.TextAlign = HorizontalAlignment.Right;
-            columnLossAmount.Width = 85;
+            columnAvgProfit.Text = "Avg Profit";
+            columnAvgProfit.TextAlign = HorizontalAlignment.Right;
+            columnAvgProfit.Width = 70;
             // 
-            // columnHeaderFee2
+            // columnProfitFactor
             // 
-            columnHeaderFee2.Text = "Fee";
-            columnHeaderFee2.TextAlign = HorizontalAlignment.Right;
+            columnProfitFactor.Text = "P. Factor";
+            columnProfitFactor.TextAlign = HorizontalAlignment.Right;
+            // 
+            // columnFee2
+            // 
+            columnFee2.Text = "Fee";
+            columnFee2.TextAlign = HorizontalAlignment.Right;
+            columnFee2.Width = 70;
             // 
             // columnTotalProfit2
             // 
@@ -440,6 +464,7 @@
             listViewSummaryDetails.View = View.Details;
             listViewSummaryDetails.ColumnClick += listViewSummaryDetails_ColumnClick;
             listViewSummaryDetails.DoubleClick += listViewSummaryDetails_DoubleClick;
+            listViewSummaryDetails.MouseUp += listViewSummaryDetails_MouseUp;
             // 
             // columnSlug
             // 
@@ -725,7 +750,7 @@
             // 
             // contextMenuStripTrade
             // 
-            contextMenuStripTrade.Items.AddRange(new ToolStripItem[] { setAddressesToFilterToolStripMenuItem, addAddressesToFilterToolStripMenuItem, copyAddressToolStripMenuItem1 });
+            contextMenuStripTrade.Items.AddRange(new ToolStripItem[] { setAddressesToFilterToolStripMenuItem, addAddressesToFilterToolStripMenuItem, copyAddressToolStripMenuItem1, exportToExcelFileToolStripMenuItem1 });
             contextMenuStripTrade.Name = "contextMenuStripTrade";
             contextMenuStripTrade.Size = new Size(196, 92);
             // 
@@ -743,11 +768,25 @@
             addAddressesToFilterToolStripMenuItem.Text = "Add Addresses to Filter";
             addAddressesToFilterToolStripMenuItem.Click += addAddressesToFilterToolStripMenuItem_Click;
             // 
+            // copyAddressToolStripMenuItem1
+            // 
+            copyAddressToolStripMenuItem1.Name = "copyAddressToolStripMenuItem1";
+            copyAddressToolStripMenuItem1.Size = new Size(195, 22);
+            copyAddressToolStripMenuItem1.Text = "Copy Address";
+            copyAddressToolStripMenuItem1.Click += copyAddressToolStripMenuItem1_Click;
+            // 
+            // exportToExcelFileToolStripMenuItem1
+            // 
+            exportToExcelFileToolStripMenuItem1.Name = "exportToExcelFileToolStripMenuItem1";
+            exportToExcelFileToolStripMenuItem1.Size = new Size(195, 22);
+            exportToExcelFileToolStripMenuItem1.Text = "Export To Excel File";
+            exportToExcelFileToolStripMenuItem1.Click += exportToExcelFileToolStripMenuItem1_Click;
+            // 
             // contextMenuStripUser
             // 
-            contextMenuStripUser.Items.AddRange(new ToolStripItem[] { toolStripMenuItemUserSetAddress, toolStripMenuItemUserAddAddress, copyAddressToolStripMenuItem });
+            contextMenuStripUser.Items.AddRange(new ToolStripItem[] { toolStripMenuItemUserSetAddress, toolStripMenuItemUserAddAddress, copyAddressToolStripMenuItem, exportToExcelFileToolStripMenuItem });
             contextMenuStripUser.Name = "contextMenuStripTrade";
-            contextMenuStripUser.Size = new Size(196, 70);
+            contextMenuStripUser.Size = new Size(196, 92);
             // 
             // toolStripMenuItemUserSetAddress
             // 
@@ -770,12 +809,62 @@
             copyAddressToolStripMenuItem.Text = "Copy Address";
             copyAddressToolStripMenuItem.Click += copyAddressToolStripMenuItem_Click;
             // 
-            // copyAddressToolStripMenuItem1
+            // exportToExcelFileToolStripMenuItem
             // 
-            copyAddressToolStripMenuItem1.Name = "copyAddressToolStripMenuItem1";
-            copyAddressToolStripMenuItem1.Size = new Size(195, 22);
-            copyAddressToolStripMenuItem1.Text = "Copy Address";
-            copyAddressToolStripMenuItem1.Click += copyAddressToolStripMenuItem1_Click;
+            exportToExcelFileToolStripMenuItem.Name = "exportToExcelFileToolStripMenuItem";
+            exportToExcelFileToolStripMenuItem.Size = new Size(195, 22);
+            exportToExcelFileToolStripMenuItem.Text = "Export to Excel File";
+            exportToExcelFileToolStripMenuItem.Click += exportToExcelFileToolStripMenuItem_Click;
+            // 
+            // contextMenuSummaryDetails
+            // 
+            contextMenuSummaryDetails.Items.AddRange(new ToolStripItem[] { exportToExcelFileToolStripMenuItem2 });
+            contextMenuSummaryDetails.Name = "contextMenuSummaryDetails";
+            contextMenuSummaryDetails.Size = new Size(172, 26);
+            // 
+            // exportToExcelFileToolStripMenuItem2
+            // 
+            exportToExcelFileToolStripMenuItem2.Name = "exportToExcelFileToolStripMenuItem2";
+            exportToExcelFileToolStripMenuItem2.Size = new Size(171, 22);
+            exportToExcelFileToolStripMenuItem2.Text = "Export to Excel File";
+            exportToExcelFileToolStripMenuItem2.Click += exportToExcelFileToolStripMenuItem2_Click;
+            // 
+            // contextMenuStripTradeDetails
+            // 
+            contextMenuStripTradeDetails.Items.AddRange(new ToolStripItem[] { exportToExcelFileToolStripMenuItem3 });
+            contextMenuStripTradeDetails.Name = "contextMenuStripTradeDetails";
+            contextMenuStripTradeDetails.Size = new Size(174, 26);
+            // 
+            // exportToExcelFileToolStripMenuItem3
+            // 
+            exportToExcelFileToolStripMenuItem3.Name = "exportToExcelFileToolStripMenuItem3";
+            exportToExcelFileToolStripMenuItem3.Size = new Size(173, 22);
+            exportToExcelFileToolStripMenuItem3.Text = "Export To Excel File";
+            exportToExcelFileToolStripMenuItem3.Click += exportToExcelFileToolStripMenuItem3_Click;
+            // 
+            // columnTotalUpSize
+            // 
+            columnTotalUpSize.Text = "Up Size";
+            columnTotalUpSize.TextAlign = HorizontalAlignment.Right;
+            columnTotalUpSize.Width = 0;
+            // 
+            // columnTotalDownSize
+            // 
+            columnTotalDownSize.Text = "Down Size";
+            columnTotalDownSize.TextAlign = HorizontalAlignment.Right;
+            columnTotalDownSize.Width = 0;
+            // 
+            // columnTotalUpProfit
+            // 
+            columnTotalUpProfit.Text = "Up Profit";
+            columnTotalUpProfit.TextAlign = HorizontalAlignment.Right;
+            columnTotalUpProfit.Width = 0;
+            // 
+            // columnTotalDownProfit
+            // 
+            columnTotalDownProfit.Text = "Down Profit";
+            columnTotalDownProfit.TextAlign = HorizontalAlignment.Right;
+            columnTotalDownProfit.Width = 0;
             // 
             // AnalysisPane
             // 
@@ -800,6 +889,8 @@
             panelEventInfo.ResumeLayout(false);
             contextMenuStripTrade.ResumeLayout(false);
             contextMenuStripUser.ResumeLayout(false);
+            contextMenuSummaryDetails.ResumeLayout(false);
+            contextMenuStripTradeDetails.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -855,8 +946,7 @@
         private ColumnHeader columnWinCount;
         private ColumnHeader columnLossCount;
         private ColumnHeader columnWinRate;
-        private ColumnHeader columnWinAmount;
-        private ColumnHeader columnLossAmount;
+        private ColumnHeader columnAvgAmount;
         private ColumnHeader columnTotalProfit2;
         private ListView listViewSummaryDetails;
         private ColumnHeader columnSlug;
@@ -883,10 +973,23 @@
         private ContextMenuStrip contextMenuStripUser;
         private ToolStripMenuItem toolStripMenuItemUserSetAddress;
         private ToolStripMenuItem toolStripMenuItemUserAddAddress;
-        private ColumnHeader columnHeaderFee2;
+        private ColumnHeader columnFee2;
         private ColumnHeader columnFee3;
         private CheckBox checkBoxFee;
         private ToolStripMenuItem copyAddressToolStripMenuItem1;
         private ToolStripMenuItem copyAddressToolStripMenuItem;
+        private ToolStripMenuItem exportToExcelFileToolStripMenuItem1;
+        private ToolStripMenuItem exportToExcelFileToolStripMenuItem;
+        private ContextMenuStrip contextMenuSummaryDetails;
+        private ToolStripMenuItem exportToExcelFileToolStripMenuItem2;
+        private ContextMenuStrip contextMenuStripTradeDetails;
+        private ToolStripMenuItem exportToExcelFileToolStripMenuItem3;
+        private ColumnHeader columnAvgProfit;
+        private ColumnHeader columnProfitFactor;
+        private ColumnHeader columnMode;
+        private ColumnHeader columnTotalUpSize;
+        private ColumnHeader columnTotalDownSize;
+        private ColumnHeader columnTotalUpProfit;
+        private ColumnHeader columnTotalDownProfit;
     }
 }

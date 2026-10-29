@@ -8,23 +8,22 @@ using Newtonsoft.Json.Linq;
 using SocketIOClient;
 using System.Net;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace MarsPolymarketClient.Services
 {
     public class PolymarketService
     {
-        static string DATABASE = "database";
-        static string DATABASE_FOLDER_PATH = Path.Combine(AppContext.BaseDirectory, DATABASE);
-
         static string GAMMA_API_URL = "https://gamma-api.polymarket.com";
         static string LOGIN_URL = $"{AppSettings.ServerAddress}/api/session/login";
         static string START_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/start";
         static string STOP_SESSION_URL = $"{AppSettings.ServerAddress}/api/session/stop";
-        static string START_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/start";
-        static string STOP_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/stop";
-        static string GET_TRADE_STATUS_URL = $"{AppSettings.ServerAddress}/api/session/trade/status";
-        static string SET_TRADE_OPTIONS_URL = $"{AppSettings.ServerAddress}/api/session/trade/options";
-        static string CLAIM_TRADE_URL = $"{AppSettings.ServerAddress}/api/session/trade/claim";
+        static string GET_STRATEGIES_URL = $"{AppSettings.ServerAddress}/api/trade/strategies";
+        static string START_TRADE_URL = $"{AppSettings.ServerAddress}/api/trade/start";
+        static string STOP_TRADE_URL = $"{AppSettings.ServerAddress}/api/trade/stop";
+        static string GET_TRADE_STATUS_URL = $"{AppSettings.ServerAddress}/api/trade/status";
+        static string SET_TRADE_OPTIONS_URL = $"{AppSettings.ServerAddress}/api/trade/options";
+        static string CLAIM_TRADE_URL = $"{AppSettings.ServerAddress}/api/trade/claim";
 
         public static bool ServerConnected = false;
 
@@ -44,9 +43,9 @@ namespace MarsPolymarketClient.Services
 
             socketClient.ConnectAsync();
 
-            Directory.CreateDirectory(DATABASE_FOLDER_PATH);
-            Directory.CreateDirectory($"{DATABASE_FOLDER_PATH}//markets");
-            Directory.CreateDirectory($"{DATABASE_FOLDER_PATH}//trades");
+            Directory.CreateDirectory(AppSettings.DatabasePath);
+            Directory.CreateDirectory($"{AppSettings.DatabasePath}//markets");
+            Directory.CreateDirectory($"{AppSettings.DatabasePath}//trades");
         }
 
         private static void OnServerConnected(bool connected)
@@ -123,12 +122,13 @@ namespace MarsPolymarketClient.Services
             return true;
         }
 
-        public static async Task<bool> StartTrade(string sessionKey, string tradeOptions)
+        public static async Task<bool> StartTrade(string sessionKey, string strategyType, string tradeOptions)
         {
             HttpClient client = new HttpClient();
 
             JObject parameter = new JObject();
             parameter["sessionKey"] = sessionKey;
+            parameter["strategyType"] = strategyType;
             parameter["tradeOptions"] = tradeOptions;
 
             var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
@@ -191,6 +191,20 @@ namespace MarsPolymarketClient.Services
             return jObject["running"]?.ToObject<bool>() ?? false;
         }
 
+        public static async Task<List<Strategy>> GetStrategies()
+        {
+            HttpClient client = new HttpClient();
+
+            var response = await client.GetAsync(GET_STRATEGIES_URL);
+
+            response.EnsureSuccessStatusCode();
+            
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var strategies = JArray.Parse(jsonString).ToObject<List<Strategy>>() ?? new List<Strategy>();
+
+            return strategies;
+        }
+
         public static async Task<TradeStatus?> GetTradeStatus(string sessionKey)
         {
             HttpClient client = new HttpClient();
@@ -237,7 +251,7 @@ namespace MarsPolymarketClient.Services
 
         public static bool IsDataExists(string slug)
         {
-            string filePath = $"{DATABASE_FOLDER_PATH}//markets//{slug}.json";
+            string filePath = $"{AppSettings.DatabasePath}//markets//{slug}.json";
             return File.Exists(filePath);
         }
 
@@ -249,7 +263,7 @@ namespace MarsPolymarketClient.Services
         public static async Task<Market> GetMarketBySlug(string slug)
         {
             // load if already exits in database folder
-            string filePath = $"{DATABASE_FOLDER_PATH}//markets//{slug}.json";
+            string filePath = $"{AppSettings.DatabasePath}//markets//{slug}.json";
             if (File.Exists(filePath))
                 return JsonConvert.DeserializeObject<Market>(File.ReadAllText(filePath)) ?? new Market();
 
@@ -300,33 +314,9 @@ namespace MarsPolymarketClient.Services
         public static async Task<List<Trade>> GetAllTrades(string conditionId)
         {
             // load if already exits in database folder
-            string filePath = $"{DATABASE_FOLDER_PATH}//trades//{conditionId}.json";
+            string filePath = $"{AppSettings.DatabasePath}//trades//{conditionId}.json";
             if (File.Exists(filePath))
                 return JsonConvert.DeserializeObject<List<Trade>>(File.ReadAllText(filePath)) ?? new List<Trade>();
-
-            //HttpClient client = new HttpClient();
-
-            //JObject parameter = new JObject();
-            //parameter["conditionId"] = conditionId;
-
-            //var data = Utils.EncryptData(parameter.ToString(), AppSettings.EncryptionKey, AppSettings.EncryptionIv);
-            //var content = new FormUrlEncodedContent(new[] {
-            //    new KeyValuePair<string, string>("data", Utils.ConvertToBase64String(data))
-            //});
-            //var response = await client.PostAsync(ALL_TRADES_URL, content);
-
-            //var jsonString = await response.Content.ReadAsStringAsync();
-
-            //if (jsonString.StartsWith("{\"error\""))
-            //{
-            //    var jObject = JObject.Parse(jsonString);
-            //    throw new Exception(jObject["error"]?.ToString());
-            //}
-
-            // save to database file
-            //File.WriteAllText(filePath, jsonString);
-
-            //return JsonConvert.DeserializeObject<List<Trade>>(jsonString) ?? new List<Trade>();
 
             var all = new JArray();
             const int limit = 500, maxTrades = 20000;
@@ -367,6 +357,7 @@ namespace MarsPolymarketClient.Services
                         trade.Remove("bio");
                         trade.Remove("profileImage");
                         trade.Remove("profileImageOptimized");
+                        trade.Add("IsTaker", false);
 
                         all.Add(trade);
 
@@ -375,6 +366,33 @@ namespace MarsPolymarketClient.Services
                     }
 
                     offset += batch.Count;
+                }
+
+                // taker only = true
+                string url2 =
+                    $"https://data-api.polymarket.com/trades" +
+                    $"?takerOnly=true" +
+                    $"&user=" +
+                    $"&market={Uri.EscapeDataString(conditionId)}" +
+                    $"&limit={all.Count}" +
+                    $"&offset=0";
+
+                var response2 = await client.GetAsync(url2);
+                response2.EnsureSuccessStatusCode();
+
+                string json2 = await response2.Content.ReadAsStringAsync();
+                JArray? batch2 = JArray.Parse(json2);
+
+                foreach (JObject trade in batch2.OfType<JObject>())
+                {
+                    foreach (JObject item in all)
+                    {
+                        if (trade["transactionHash"]?.ToString() == item["transactionHash"]?.ToString())
+                        {
+                            item["IsTaker"] = true;
+                            break;
+                        }
+                    }
                 }
             }
             catch (Exception)

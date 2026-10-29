@@ -1,4 +1,5 @@
-﻿using MarsPolymarketClient.Components;
+﻿using ClosedXML.Excel;
+using MarsPolymarketClient.Components;
 using MarsPolymarketClient.Forms;
 using MarsPolymarketClient.Global;
 using MarsPolymarketClient.Models;
@@ -6,12 +7,14 @@ using SocketIOClient.Common.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MarsPolymarketClient.Containers.Main
 {
@@ -66,9 +69,13 @@ namespace MarsPolymarketClient.Containers.Main
 
             int outComeIndex = Math.Round(decimal.Parse(market.OutcomePrices[0])) == 1 ? 0 : 1;
             decimal totalTradeAmount = 0, totalWinAmount = 0, totalLossAmount = 0;
+            decimal maxPrice = MainForm.GetInstance().GetEventsPanel().GetMaxPrice();
 
             foreach (var trade in trades)
             {
+                if (trade.Price >= maxPrice)
+                    continue;
+
                 totalTradeAmount += trade.Size * trade.Price;
             }
 
@@ -125,10 +132,16 @@ namespace MarsPolymarketClient.Containers.Main
             var sorted = trades.OrderBy(t => t.Timestamp).ToList();
 
             decimal totalUpAmount = 0, totalDownAmount = 0, totalAmount = 0;
+            decimal totalUpSize = 0, totalDownSize = 0;
             var addresses = richTextBoxAddress.Text != "" ?
                 richTextBoxAddress.Text.Split("\n").Select(a => a.ToLower()).ToArray() : [];
+            decimal maxPrice = MainForm.GetInstance().GetEventsPanel().GetMaxPrice();
+
             foreach (var trade in sorted)
             {
+                if (trade.Price >= maxPrice)
+                    continue;
+
                 if (addresses.Length > 0 && !addresses.Contains(trade.ProxyWallet.ToLower()))
                     continue;
 
@@ -144,9 +157,18 @@ namespace MarsPolymarketClient.Containers.Main
                 totalAmount += amount;
 
                 if (trade.Outcome == Constants.UP)
+                {
                     totalUpAmount += trade.Side == Constants.BUY ? amount : -amount;
+                    totalUpSize += trade.Side == Constants.BUY ? trade.Size : -trade.Size;
+                }
                 else
+                {
                     totalDownAmount += trade.Side == Constants.BUY ? amount : -amount;
+                    totalDownSize += trade.Side == Constants.BUY ? trade.Size : -trade.Size;
+                }
+
+                var upProfit = totalUpSize * 1 - totalUpAmount - totalDownAmount;
+                var downProfit = totalDownSize * 1 - totalUpAmount - totalDownAmount;
 
                 var item = listViewTradeDetails.Items.Add(new ListViewItem(new string[]
                 {
@@ -160,7 +182,13 @@ namespace MarsPolymarketClient.Containers.Main
                     amount.ToString("0.0"),
                     totalUpAmount.ToString("0.0"),
                     totalDownAmount.ToString("0.0"),
-                    totalAmount.ToString("0.0")
+                    totalAmount.ToString("0.0"),
+                    trade.IsTaker ? "Take" : "Make",
+                    totalUpSize.ToString("0.0"),
+                    totalDownSize.ToString("0.0"),
+                    upProfit.ToString("0.0"),
+                    downProfit.ToString("0.0"),
+
                 }));
             }
 
@@ -319,7 +347,7 @@ namespace MarsPolymarketClient.Containers.Main
                     else
                     {
                         userSummary.LoseCount++;
-                        userSummary.LoseAmount += summary.Value.TotalProfit;
+                        userSummary.LossAmount += summary.Value.TotalProfit;
                     }
 
                     userSummary.Fee += summary.Value.Fee;
@@ -392,6 +420,9 @@ namespace MarsPolymarketClient.Containers.Main
                     continue;
 
                 var totalProfit = checkBoxFee.Checked ? summary.TotalProfit - summary.Fee : summary.TotalProfit;
+                var avgAmount = (summary.WinAmount - summary.LossAmount) / summary.EventCount;
+                var avgProfit = totalProfit / summary.EventCount;
+                var profitFactor = summary.LossAmount == 0 ? 999 : Math.Abs(summary.WinAmount / summary.LossAmount);
                 var item = listViewUser.Items.Add(new ListViewItem(new string[]
                 {
                     summary.Name,
@@ -399,11 +430,12 @@ namespace MarsPolymarketClient.Containers.Main
                     summary.EventCount.ToString(),
                     summary.WinCount.ToString(),
                     summary.LoseCount.ToString(),
-                    winRate.ToString("0.00"),
-                    summary.WinAmount.ToString("0.0"),
-                    summary.LoseAmount.ToString("0.0"),
-                    summary.Fee.ToString("0.0"),
-                    totalProfit.ToString("0.0"),
+                    winRate.ToString("0.##"),
+                    avgAmount.ToString("0.#"),
+                    avgProfit.ToString("0.#"),
+                    profitFactor.ToString("0.#"),
+                    summary.Fee.ToString("0.#"),
+                    totalProfit.ToString("0.#"),
                 }));
             }
 
@@ -481,9 +513,11 @@ namespace MarsPolymarketClient.Containers.Main
             {
                 // enable/disable menus
                 var enabled = listViewTrade.SelectedItems.Count > 0;
+                var enabled2 = listViewTrade.Items.Count > 0;
 
                 contextMenuStripTrade.Items["setAddressesToFilterToolStripMenuItem"]!.Enabled = enabled;
                 contextMenuStripTrade.Items["addAddressesToFilterToolStripMenuItem"]!.Enabled = enabled;
+                contextMenuStripTrade.Items["exportToExcelFileToolStripMenuItem1"]!.Enabled = enabled2;
 
                 // show menu
                 contextMenuStripTrade.Show(Cursor.Position);
@@ -496,12 +530,42 @@ namespace MarsPolymarketClient.Containers.Main
             {
                 // enable/disable menus
                 var enabled = listViewUser.SelectedItems.Count > 0;
+                var enabled2 = listViewUser.Items.Count > 0;
 
                 contextMenuStripUser.Items["toolStripMenuItemUserSetAddress"]!.Enabled = enabled;
                 contextMenuStripUser.Items["toolStripMenuItemUserAddAddress"]!.Enabled = enabled;
+                contextMenuStripUser.Items["exportToExcelFileToolStripMenuItem"]!.Enabled = enabled2;
 
                 // show menu
                 contextMenuStripUser.Show(Cursor.Position);
+            }
+        }
+
+        private void listViewSummaryDetails_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // enable/disable menus
+                var enabled = listViewSummaryDetails.Items.Count > 0;
+
+                contextMenuSummaryDetails.Items["exportToExcelFileToolStripMenuItem2"]!.Enabled = enabled;
+
+                // show menu
+                contextMenuSummaryDetails.Show(Cursor.Position);
+            }
+        }
+
+        private void listViewTradeDetails_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // enable/disable menus
+                var enabled = listViewTradeDetails.Items.Count > 0;
+
+                contextMenuStripTradeDetails.Items["exportToExcelFileToolStripMenuItem3"]!.Enabled = enabled;
+
+                // show menu
+                contextMenuStripTradeDetails.Show(Cursor.Position);
             }
         }
 
@@ -537,6 +601,72 @@ namespace MarsPolymarketClient.Containers.Main
             }
 
             Clipboard.SetText(addresses);
+        }
+
+        private void ExportToExcelFile(System.Windows.Forms.ListView listView, string fileName = "NewFile")
+        {
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                FileName = $"{fileName}.xlsx"
+            };
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Trades");
+
+            // Headers
+            for (int i = 0; i < listView.Columns.Count; i++)
+            {
+                worksheet.Cell(1, i + 1).Value = listView.Columns[i].Text;
+            }
+
+            // Data
+            for (int row = 0; row < listView.Items.Count; row++)
+            {
+                var item = listView.Items[row];
+
+                for (int col = 0; col < item.SubItems.Count; col++)
+                {
+                    worksheet.Cell(row + 2, col + 1).Value =
+                        item.SubItems[col].Text;
+                }
+            }
+
+            // Formatting
+            worksheet.Columns().AdjustToContents();
+
+            workbook.SaveAs(dialog.FileName);
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = dialog.FileName,
+                UseShellExecute = true
+            });
+        }
+
+        private void exportToExcelFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportToExcelFile(listViewUser, "user_bulk_analysis");
+        }
+
+        private void exportToExcelFileToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var slug = MainForm.GetInstance().GetEventsPanel().GetSelectedSlug();
+
+            ExportToExcelFile(listViewTrade, $"user_summmary_{slug}");
+        }
+
+        private void exportToExcelFileToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            ExportToExcelFile(listViewSummaryDetails, $"user_analysis_details");
+        }
+
+        private void exportToExcelFileToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            ExportToExcelFile(listViewTradeDetails, $"user_trade_details");
         }
     }
 }

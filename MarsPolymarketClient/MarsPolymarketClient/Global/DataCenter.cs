@@ -15,5 +15,7 @@ namespace MarsPolymarketClient.Global
         public static ClientAccount? ActiveAccount = null;
 
         public static Dictionary<string, Event> Events = new Dictionary<string, Event>();
+
+        public static List<Strategy> Strategies = new List<Strategy>();
     }
 }

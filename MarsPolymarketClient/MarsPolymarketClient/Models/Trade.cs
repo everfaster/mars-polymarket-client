@@ -23,6 +23,7 @@ namespace MarsPolymarketClient.Models
         public int OutcomeIndex { get; set; } = -1;
         public string Name { get; set; } = string.Empty;
         public string TransactionHash { get; set; } = string.Empty;
+        public bool IsTaker { get; set; } = false;
     }
 
     public class TradeSummary
@@ -50,7 +51,7 @@ namespace MarsPolymarketClient.Models
         public int WinCount { get; set; } = 0;
         public int LoseCount { get; set; } = 0;
         public decimal WinAmount { get; set; } = 0;
-        public decimal LoseAmount { get; set; } = 0;
+        public decimal LossAmount { get; set; } = 0;
         public decimal Fee { get; set; } = 0;
         public decimal TotalProfit { get; set; } = 0;
     }

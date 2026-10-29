@@ -1,3 +1,10 @@
+using DocumentFormat.OpenXml.Math;
+using MarsPolymarketClient.Containers.Events;
+using MarsPolymarketClient.Containers.Main;
+using MarsPolymarketClient.Global;
+using MarsPolymarketClient.Helpers;
+using MarsPolymarketClient.Models;
+using MarsPolymarketClient.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,12 +16,6 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MarsPolymarketClient.Containers.Events;
-using MarsPolymarketClient.Containers.Main;
-using MarsPolymarketClient.Global;
-using MarsPolymarketClient.Helpers;
-using MarsPolymarketClient.Models;
-using MarsPolymarketClient.Services;
 
 namespace MarsPolymarketClient.Forms
 {
@@ -72,6 +73,8 @@ namespace MarsPolymarketClient.Forms
                     tradePane.RefreshSessionList();
                 }
             }
+
+            LoadStrategies();
         }
 
         public void ShowAlert(string message, int timeout = 1000, bool invoke = false)
@@ -123,6 +126,25 @@ namespace MarsPolymarketClient.Forms
         {
             AccountSettingsForm form = new AccountSettingsForm();
             form.ShowDialog();
+        }
+
+        private void LoadStrategies()
+        {
+            var task = Task.Run(() =>
+            {
+                try
+                {
+                    DataCenter.Strategies = PolymarketService.GetStrategies().Result;
+                }
+                catch (Exception e)
+                {
+                    BeginInvoke(new MethodInvoker(delegate
+                    {
+                        MainForm.GetInstance().ShowAlert(e.Message);
+                        return;
+                    }));
+                }
+            });
         }
     }
 }

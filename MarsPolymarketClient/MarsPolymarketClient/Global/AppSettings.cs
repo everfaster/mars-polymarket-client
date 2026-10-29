@@ -14,6 +14,7 @@ namespace MarsPolymarketClient.Global
     public class AppSettings
     {
         public const string SETTINGS_FILENAME = "settings.ini";
+        public static string DatabasePath = Path.Combine(AppContext.BaseDirectory, "database");
         public static string ServerAddress = "http://localhost:3330";
         public static string SocketServerAddress = "http://localhost:3331";
         public static string EncryptionKey = "";
@@ -32,6 +33,7 @@ namespace MarsPolymarketClient.Global
                 SocketServerAddress = (string?)jsonObj["SocketServerAddress"] ?? string.Empty;
                 ActiveSessionKey = (string?)jsonObj["ActiveSessionKey"] ?? string.Empty;
                 EncryptionIv = (string?)jsonObj["EncryptionIv"] ?? string.Empty;
+                DatabasePath = (string?)jsonObj["DatabasePath"] ?? DatabasePath;
 
                 if (jsonObj["Accounts"] != null)
                 {
@@ -60,6 +62,7 @@ namespace MarsPolymarketClient.Global
                 jsonObj["SocketServerAddress"] = SocketServerAddress;
                 jsonObj["ActiveSessionKey"] = ActiveSessionKey;
                 jsonObj["EncryptionIv"] = EncryptionIv;
+                jsonObj["DatabasePath"] = DatabasePath;
 
                 var accounts = JArray.Parse(JsonConvert.SerializeObject(ClientAccounts));
                 jsonObj["Accounts"] = accounts;
